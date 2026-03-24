@@ -1,9 +1,9 @@
 export type UploaderProps = {
-  filename: string
-  filetype: string
-  body: Buffer
-}
+  filename: string;
+  filetype: string;
+  body: Buffer;
+};
 
 export interface UploaderProvider {
-  upload: (params: UploaderProps) => Promise<string>
+  upload: (params: UploaderProps) => Promise<string>;
 }
