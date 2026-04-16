@@ -121,7 +121,7 @@ export default function Sidebar() {
       </aside>
 
       {/* Mobile topbar */}
-      <header className="md:hidden fixed top-0 left-0 right-0 z-40 h-14 bg-slate-900 flex items-center px-4 gap-3 border-b border-slate-800">
+      <header className="md:hidden fixed top-0 left-0 right-0 z-40 h-14 bg-slate-900 flex items-center justify-between px-4 gap-3 border-b border-slate-800">
         <button
           onClick={() => setOpen(true)}
           className="text-slate-400 hover:text-white transition-colors"
