@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Plus, Trash2, Eye } from "lucide-react";
 import { ordersApi } from "@/lib/api/orders";
 import { formatDate } from "@/lib/utils";
 import { customersApi } from "@/lib/api/customers";
@@ -13,27 +14,39 @@ import type { Customer } from "@/types/customer";
 import type { Product } from "@/types/product";
 import PageHeader from "@/components/ui/page-header";
 import Modal from "@/components/ui/modal";
+import Button from "@/components/ui/button";
+import Select from "@/components/ui/select";
+import { useToast } from "@/components/ui/toast";
 
 const schema = z.object({
   customer_id: z.string().min(1, "Customer is required"),
-  products: z.array(
-    z.object({
-      id: z.string().min(1, "Product is required"),
-      quantity: z.coerce.number().int().min(1, "Minimum 1"),
-    })
-  ).min(1, "Add at least one product"),
+  products: z
+    .array(
+      z.object({
+        id: z.string().min(1, "Product is required"),
+        quantity: z.coerce.number().int().min(1, "Min 1"),
+      })
+    )
+    .min(1, "Add at least one product"),
 });
 
 type FormData = z.infer<typeof schema>;
 
 export default function OrdersPage() {
+  const { toast } = useToast();
   const [orders, setOrders] = useState<Order[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [viewOrder, setViewOrder] = useState<Order | null>(null);
 
-  const { register, handleSubmit, control, reset, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { customer_id: "", products: [{ id: "", quantity: 1 }] },
   });
@@ -41,125 +54,236 @@ export default function OrdersPage() {
   const { fields, append, remove } = useFieldArray({ control, name: "products" });
 
   useEffect(() => {
-    customersApi.list({ per_page: 100 }).then((r) => setCustomers(r.items));
-    productsApi.list({ per_page: 100 }).then((r) => setProducts(r.items));
-  }, []);
+    const controller = new AbortController();
+    const { signal } = controller;
 
-  function openCreate() {
+    Promise.all([
+      customersApi.list({ per_page: 100 }, signal),
+      productsApi.list({ per_page: 100 }, signal),
+    ])
+      .then(([c, p]) => {
+        setCustomers(c.items);
+        setProducts(p.items);
+      })
+      .catch((err) => {
+        if (err.name !== "CanceledError" && err.name !== "AbortError") {
+          toast("Failed to load data", "error");
+        }
+      });
+
+    return () => controller.abort();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // O(1) lookups instead of O(n) .find() on every render
+  const customerMap = useMemo(
+    () => new Map(customers.map((c) => [c.id, c])),
+    [customers]
+  );
+
+  const productMap = useMemo(
+    () => new Map(products.map((p) => [p.id, p])),
+    [products]
+  );
+
+  const openCreate = useCallback(() => {
     reset({ customer_id: "", products: [{ id: "", quantity: 1 }] });
     setModalOpen(true);
-  }
+  }, [reset]);
 
-  async function onSubmit(formData: FormData) {
-    const order = await ordersApi.create(formData);
-    setOrders((prev) => [order, ...prev]);
-    setModalOpen(false);
-  }
+  const onSubmit = useCallback(
+    async (formData: FormData) => {
+      try {
+        const order = await ordersApi.create(formData);
+        setOrders((prev) => [order, ...prev]);
+        toast("Order created successfully");
+        setModalOpen(false);
+      } catch {
+        toast("Failed to create order", "error");
+      }
+    },
+    [toast]
+  );
 
-  async function handleView(id: string) {
-    const order = await ordersApi.get(id);
-    setViewOrder(order);
-  }
+  const handleView = useCallback(async (id: string) => {
+    try {
+      const order = await ordersApi.get(id);
+      setViewOrder(order);
+    } catch {
+      toast("Failed to load order", "error");
+    }
+  }, [toast]);
+
+  const orderTotal = useCallback(
+    (order: Order) =>
+      order.order_products.reduce((acc, op) => acc + Number(op.price) * op.quantity, 0),
+    []
+  );
 
   return (
     <>
       <PageHeader
         title="Orders"
+        description="Track and manage customer orders"
         action={
-          <button onClick={openCreate} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
-            + New order
-          </button>
+          <Button onClick={openCreate}>
+            <Plus size={15} />
+            New order
+          </Button>
         }
       />
 
-      <div className="overflow-x-auto rounded-xl border bg-white">
+      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b">
-            <tr>
-              <th className="px-4 py-3 text-left font-medium text-gray-600">ID</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-600">Customer</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-600">Items</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-600">Created at</th>
+          <thead>
+            <tr className="border-b border-slate-100">
+              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Order</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Customer</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Items</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Total</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Date</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-slate-50">
             {orders.map((order) => (
-              <tr key={order.id} className="border-b last:border-0 hover:bg-gray-50">
-                <td className="px-4 py-3 text-gray-500 text-xs font-mono">{order.id.slice(0, 8)}...</td>
-                <td className="px-4 py-3">{customers.find((c) => c.id === order.customer_id)?.name ?? order.customer_id}</td>
-                <td className="px-4 py-3">{order.order_products.length}</td>
-                <td className="px-4 py-3">{formatDate(order.created_at)}</td>
-                <td className="px-4 py-3">
-                  <button onClick={() => handleView(order.id)} className="text-blue-600 hover:underline text-xs">View</button>
+              <tr key={order.id} className="hover:bg-slate-50/70 transition-colors">
+                <td className="px-4 py-3 font-mono text-xs text-slate-400">{order.id.slice(0, 8)}…</td>
+                <td className="px-4 py-3 text-slate-700">
+                  {customerMap.get(order.customer_id)?.name ?? order.customer_id}
+                </td>
+                <td className="px-4 py-3 text-slate-500">{order.order_products.length} item(s)</td>
+                <td className="px-4 py-3 font-medium text-slate-900">${orderTotal(order).toFixed(2)}</td>
+                <td className="px-4 py-3 text-slate-400 text-xs">{formatDate(order.created_at)}</td>
+                <td className="px-4 py-3 text-right">
+                  <button
+                    onClick={() => handleView(order.id)}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                    title="View order"
+                  >
+                    <Eye size={14} />
+                  </button>
                 </td>
               </tr>
             ))}
             {orders.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-gray-400">No orders yet</td>
+                <td colSpan={6} className="px-4 py-12 text-center text-slate-400 text-sm">
+                  No orders yet
+                </td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
 
+      {/* Create order modal */}
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="New order">
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Customer</label>
-            <select {...register("customer_id")} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="">Select...</option>
-              {customers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-            {errors.customer_id && <p className="text-red-500 text-xs mt-1">{errors.customer_id.message}</p>}
-          </div>
+          <Select label="Customer" error={errors.customer_id?.message} {...register("customer_id")}>
+            <option value="">Select a customer...</option>
+            {customers.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </Select>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Products</label>
+            <label className="text-sm font-medium text-slate-700 block mb-2">Products</label>
             <div className="flex flex-col gap-2">
               {fields.map((field, i) => (
                 <div key={field.id} className="flex gap-2 items-start">
-                  <select {...register(`products.${i}.id`)} className="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">Select...</option>
-                    {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  <select
+                    {...register(`products.${i}.id`)}
+                    className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 hover:border-slate-300 transition-colors"
+                  >
+                    <option value="">Select product...</option>
+                    {products.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
                   </select>
-                  <input {...register(`products.${i}.quantity`)} type="number" min={1} placeholder="Qty" className="w-20 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <input
+                    {...register(`products.${i}.quantity`)}
+                    type="number"
+                    min={1}
+                    placeholder="Qty"
+                    className="w-20 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 hover:border-slate-300 transition-colors"
+                  />
                   {fields.length > 1 && (
-                    <button type="button" onClick={() => remove(i)} className="text-red-500 text-lg leading-none mt-1">&times;</button>
+                    <button
+                      type="button"
+                      onClick={() => remove(i)}
+                      className="p-2 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors mt-0.5"
+                    >
+                      <Trash2 size={14} />
+                    </button>
                   )}
                 </div>
               ))}
             </div>
-            <button type="button" onClick={() => append({ id: "", quantity: 1 })} className="mt-2 text-blue-600 text-xs hover:underline">
-              + Add product
+            <button
+              type="button"
+              onClick={() => append({ id: "", quantity: 1 })}
+              className="mt-2 flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 transition-colors"
+            >
+              <Plus size={12} />
+              Add product
             </button>
-            {errors.products && <p className="text-red-500 text-xs mt-1">{errors.products.message}</p>}
+            {errors.products && (
+              <p className="text-xs text-red-500 mt-1">{errors.products.message}</p>
+            )}
           </div>
 
-          <button type="submit" disabled={isSubmitting} className="bg-blue-600 text-white rounded-lg py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
-            {isSubmitting ? "Creating..." : "Create order"}
-          </button>
+          <Button type="submit" loading={isSubmitting} className="w-full mt-1">
+            Create order
+          </Button>
         </form>
       </Modal>
 
+      {/* View order modal */}
       <Modal open={!!viewOrder} onClose={() => setViewOrder(null)} title="Order details">
         {viewOrder && (
-          <div className="text-sm flex flex-col gap-2">
-            <p><span className="font-medium">ID:</span> {viewOrder.id}</p>
-            <p><span className="font-medium">Customer:</span> {customers.find((c) => c.id === viewOrder.customer_id)?.name ?? viewOrder.customer_id}</p>
-            <p className="font-medium mt-2">Products:</p>
-            <ul className="flex flex-col gap-1">
-              {viewOrder.order_products.map((op) => (
-                <li key={op.id} className="flex justify-between border-b pb-1">
-                  <span>{products.find((p) => p.id === op.product_id)?.name ?? op.product_id}</span>
-                  <span className="text-gray-500">{op.quantity}x — ${Number(op.price).toFixed(2)}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="font-medium text-right mt-1">
-              Total: ${viewOrder.order_products.reduce((acc, op) => acc + Number(op.price) * op.quantity, 0).toFixed(2)}
-            </p>
+          <div className="flex flex-col gap-3 text-sm">
+            <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-lg">
+              <div>
+                <p className="text-xs text-slate-400 mb-0.5">Order ID</p>
+                <p className="font-mono text-xs text-slate-600">{viewOrder.id.slice(0, 16)}…</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400 mb-0.5">Customer</p>
+                <p className="text-slate-700 font-medium">
+                  {customerMap.get(viewOrder.customer_id)?.name ?? viewOrder.customer_id}
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Items</p>
+              <div className="flex flex-col divide-y divide-slate-100 border border-slate-100 rounded-lg overflow-hidden">
+                {viewOrder.order_products.map((op) => (
+                  <div key={op.id} className="flex items-center justify-between px-3 py-2.5">
+                    <span className="text-slate-700">
+                      {productMap.get(op.product_id)?.name ?? op.product_id}
+                    </span>
+                    <div className="flex items-center gap-3 text-right">
+                      <span className="text-slate-400 text-xs">{op.quantity}×</span>
+                      <span className="font-medium text-slate-900">
+                        ${(Number(op.price) * op.quantity).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center pt-1 border-t border-slate-100">
+              <span className="text-sm text-slate-500">Total</span>
+              <span className="text-base font-semibold text-slate-900">
+                ${orderTotal(viewOrder).toFixed(2)}
+              </span>
+            </div>
           </div>
         )}
       </Modal>

@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Plus, Search } from "lucide-react";
 import { customersApi } from "@/lib/api/customers";
 import { formatDate } from "@/lib/utils";
 import type { Customer } from "@/types/customer";
@@ -11,6 +13,9 @@ import PageHeader from "@/components/ui/page-header";
 import Table from "@/components/ui/table";
 import Pagination from "@/components/ui/pagination";
 import Modal from "@/components/ui/modal";
+import Button from "@/components/ui/button";
+import Input from "@/components/ui/input";
+import { useToast } from "@/components/ui/toast";
 
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -20,83 +25,126 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function CustomersPage() {
+  const { toast } = useToast();
   const [data, setData] = useState<{ items: Customer[]; last_page: number } | null>(null);
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState("");
+  const debouncedFilter = useDebounce(filter, 350);
+  const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const { register, handleSubmit, reset, setError, formState: { errors, isSubmitting } } = useForm<FormData>({
-    resolver: zodResolver(schema),
-  });
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>({ resolver: zodResolver(schema) });
 
-  async function load() {
-    const res = await customersApi.list({ page, filter: filter || undefined });
-    setData(res);
-  }
+  const load = useCallback(
+    (signal?: AbortSignal) => {
+      setLoading(true);
+      customersApi
+        .list({ page, filter: debouncedFilter || undefined }, signal)
+        .then((res) => setData(res))
+        .catch((err) => {
+          if (err.name !== "CanceledError" && err.name !== "AbortError") {
+            toast("Failed to load customers", "error");
+          }
+        })
+        .finally(() => setLoading(false));
+    },
+    [page, debouncedFilter] // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
-  useEffect(() => { load(); }, [page, filter]);
+  useEffect(() => {
+    const controller = new AbortController();
+    load(controller.signal);
+    return () => controller.abort();
+  }, [load]);
 
-  function openCreate() {
+  const openCreate = useCallback(() => {
     reset({ name: "", email: "" });
     setModalOpen(true);
-  }
+  }, [reset]);
 
-  async function onSubmit(formData: FormData) {
-    try {
-      await customersApi.create(formData);
-      setModalOpen(false);
-      load();
-    } catch (err: any) {
-      const message = err.response?.data?.message ?? "Failed to create customer";
-      setError("email", { message });
-    }
-  }
-
-  const columns = [
-    { key: "name", label: "Name" },
-    { key: "email", label: "Email" },
-    {
-      key: "created_at", label: "Created at",
-      render: (c: Customer) => formatDate(c.created_at),
+  const onSubmit = useCallback(
+    async (formData: FormData) => {
+      try {
+        await customersApi.create(formData);
+        toast("Customer created successfully");
+        setModalOpen(false);
+        load();
+      } catch (err: any) {
+        const message = err.response?.data?.message ?? "Failed to create customer";
+        setError("email", { message });
+      }
     },
-  ];
+    [load, toast, setError]
+  );
+
+  // Stable columns definition
+  const columns = useMemo(
+    () => [
+      { key: "name", label: "Name" },
+      {
+        key: "email",
+        label: "Email",
+        render: (c: Customer) => <span className="text-slate-500">{c.email}</span>,
+      },
+      {
+        key: "created_at",
+        label: "Created at",
+        render: (c: Customer) => (
+          <span className="text-slate-400 text-xs">{formatDate(c.created_at)}</span>
+        ),
+      },
+    ],
+    []
+  );
 
   return (
     <>
       <PageHeader
         title="Customers"
+        description="Manage your customer base"
         action={
-          <button onClick={openCreate} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
-            + New customer
-          </button>
+          <Button onClick={openCreate}>
+            <Plus size={15} />
+            New customer
+          </Button>
         }
       />
-      <div className="mb-4">
+
+      <div className="mb-4 relative w-72">
+        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
         <input
-          placeholder="Search customer..."
+          placeholder="Search customers..."
           value={filter}
-          onChange={(e) => { setFilter(e.target.value); setPage(1); }}
-          className="border rounded-lg px-3 py-2 text-sm w-72 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => {
+            setFilter(e.target.value);
+            setPage(1);
+          }}
+          className="w-full border border-slate-200 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 hover:border-slate-300 transition-colors"
         />
       </div>
-      <Table columns={columns} data={data?.items ?? []} keyExtractor={(c) => c.id} />
+
+      <Table columns={columns} data={data?.items ?? []} keyExtractor={(c) => c.id} loading={loading} />
       <Pagination current={page} last={data?.last_page ?? 1} onChange={setPage} />
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="New customer">
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Name</label>
-            <input {...register("name")} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
-            <input {...register("email")} type="email" className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
-          </div>
-          <button type="submit" disabled={isSubmitting} className="bg-blue-600 text-white rounded-lg py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
-            {isSubmitting ? "Saving..." : "Save"}
-          </button>
+          <Input label="Name" placeholder="John Doe" error={errors.name?.message} {...register("name")} />
+          <Input
+            label="Email"
+            type="email"
+            placeholder="john@example.com"
+            error={errors.email?.message}
+            {...register("email")}
+          />
+          <Button type="submit" loading={isSubmitting} className="w-full mt-1">
+            Create customer
+          </Button>
         </form>
       </Modal>
     </>

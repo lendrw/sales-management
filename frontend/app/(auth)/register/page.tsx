@@ -6,6 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { usersApi } from "@/lib/api/users";
 import { useAuth } from "@/contexts/auth-context";
 import Link from "next/link";
+import Input from "@/components/ui/input";
+import Button from "@/components/ui/button";
 
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -17,9 +19,12 @@ type FormData = z.infer<typeof schema>;
 
 export default function RegisterPage() {
   const { login } = useAuth();
-  const { register, handleSubmit, formState: { errors, isSubmitting }, setError } = useForm<FormData>({
-    resolver: zodResolver(schema),
-  });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+  } = useForm<FormData>({ resolver: zodResolver(schema) });
 
   async function onSubmit(data: FormData) {
     try {
@@ -32,30 +37,32 @@ export default function RegisterPage() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold mb-6 text-center">Create account</h1>
+      <div className="mb-6">
+        <h1 className="text-xl font-semibold text-slate-900">Create account</h1>
+        <p className="mt-1 text-sm text-slate-500">Get started for free</p>
+      </div>
+
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Name</label>
-          <input {...register("name")} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Email</label>
-          <input {...register("email")} type="email" className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Password</label>
-          <input {...register("password")} type="password" className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
-        </div>
-        {errors.root && <p className="text-red-500 text-sm text-center">{errors.root.message}</p>}
-        <button type="submit" disabled={isSubmitting} className="bg-blue-600 text-white rounded-lg py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
-          {isSubmitting ? "Creating..." : "Create account"}
-        </button>
+        <Input label="Name" placeholder="John Doe" error={errors.name?.message} {...register("name")} />
+        <Input label="Email" type="email" placeholder="you@example.com" error={errors.email?.message} {...register("email")} />
+        <Input label="Password" type="password" placeholder="••••••••" error={errors.password?.message} hint="Minimum 6 characters" {...register("password")} />
+
+        {errors.root && (
+          <p className="text-sm text-red-500 text-center bg-red-50 rounded-lg py-2 px-3">
+            {errors.root.message}
+          </p>
+        )}
+
+        <Button type="submit" loading={isSubmitting} className="w-full mt-1">
+          Create account
+        </Button>
       </form>
-      <p className="mt-4 text-sm text-center text-gray-500">
-        Already have an account? <Link href="/login" className="text-blue-600 hover:underline">Sign in</Link>
+
+      <p className="mt-5 text-sm text-center text-slate-400">
+        Already have an account?{" "}
+        <Link href="/login" className="text-slate-600 hover:text-slate-900 font-medium transition-colors">
+          Sign in
+        </Link>
       </p>
     </>
   );

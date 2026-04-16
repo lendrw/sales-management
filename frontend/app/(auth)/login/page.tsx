@@ -5,6 +5,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/contexts/auth-context";
 import Link from "next/link";
+import Input from "@/components/ui/input";
+import Button from "@/components/ui/button";
 
 const schema = z.object({
   email: z.string().email("Invalid email"),
@@ -15,9 +17,12 @@ type FormData = z.infer<typeof schema>;
 
 export default function LoginPage() {
   const { login } = useAuth();
-  const { register, handleSubmit, formState: { errors, isSubmitting }, setError } = useForm<FormData>({
-    resolver: zodResolver(schema),
-  });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+  } = useForm<FormData>({ resolver: zodResolver(schema) });
 
   async function onSubmit(data: FormData) {
     try {
@@ -29,26 +34,48 @@ export default function LoginPage() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold mb-6 text-center">Sign in</h1>
+      <div className="mb-6">
+        <h1 className="text-xl font-semibold text-slate-900">Welcome back</h1>
+        <p className="mt-1 text-sm text-slate-500">Sign in to your account</p>
+      </div>
+
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Email</label>
-          <input {...register("email")} type="email" className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Password</label>
-          <input {...register("password")} type="password" className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
-        </div>
-        {errors.root && <p className="text-red-500 text-sm text-center">{errors.root.message}</p>}
-        <button type="submit" disabled={isSubmitting} className="bg-blue-600 text-white rounded-lg py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
-          {isSubmitting ? "Signing in..." : "Sign in"}
-        </button>
+        <Input
+          label="Email"
+          type="email"
+          placeholder="you@example.com"
+          error={errors.email?.message}
+          {...register("email")}
+        />
+        <Input
+          label="Password"
+          type="password"
+          placeholder="••••••••"
+          error={errors.password?.message}
+          {...register("password")}
+        />
+
+        {errors.root && (
+          <p className="text-sm text-red-500 text-center bg-red-50 rounded-lg py-2 px-3">
+            {errors.root.message}
+          </p>
+        )}
+
+        <Button type="submit" loading={isSubmitting} className="w-full mt-1">
+          Sign in
+        </Button>
       </form>
-      <div className="mt-4 text-sm text-center flex flex-col gap-1">
-        <Link href="/forgot-password" className="text-blue-600 hover:underline">Forgot password</Link>
-        <Link href="/register" className="text-gray-500 hover:underline">Create account</Link>
+
+      <div className="mt-5 flex flex-col gap-2 text-center text-sm">
+        <Link href="/forgot-password" className="text-emerald-600 hover:text-emerald-700 transition-colors">
+          Forgot your password?
+        </Link>
+        <span className="text-slate-400">
+          No account?{" "}
+          <Link href="/register" className="text-slate-600 hover:text-slate-900 font-medium transition-colors">
+            Create one
+          </Link>
+        </span>
       </div>
     </>
   );

@@ -1,12 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Camera } from "lucide-react";
 import { usersApi } from "@/lib/api/users";
 import { useAuth } from "@/contexts/auth-context";
 import PageHeader from "@/components/ui/page-header";
+import Input from "@/components/ui/input";
+import Button from "@/components/ui/button";
+import { useToast } from "@/components/ui/toast";
 
 const schema = z
   .object({
@@ -24,21 +28,27 @@ type FormData = z.infer<typeof schema>;
 
 export default function ProfilePage() {
   const { user } = useAuth();
-  const [success, setSuccess] = useState(false);
+  const { toast } = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<FormData>({
-    resolver: zodResolver(schema),
-  });
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>({ resolver: zodResolver(schema) });
 
   useEffect(() => {
     if (user) reset({ name: user.name, email: user.email });
   }, [user, reset]);
 
   async function onSubmit(data: FormData) {
-    await usersApi.updateProfile(data);
-    setSuccess(true);
-    setTimeout(() => setSuccess(false), 3000);
+    try {
+      await usersApi.updateProfile(data);
+      toast("Profile updated successfully");
+    } catch {
+      toast("Failed to update profile", "error");
+    }
   }
 
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -47,60 +57,87 @@ export default function ProfilePage() {
     const formData = new FormData();
     formData.append("user_id", user.id);
     formData.append("file", file);
-    await usersApi.updateAvatar(formData);
+    try {
+      await usersApi.updateAvatar(formData);
+      toast("Avatar updated");
+    } catch {
+      toast("Failed to update avatar", "error");
+    }
   }
+
+  const initials = user?.name?.charAt(0).toUpperCase() ?? "U";
 
   return (
     <>
-      <PageHeader title="Profile" />
-      <div className="max-w-lg bg-white rounded-xl border p-6">
-        <div className="flex items-center gap-4 mb-6">
-          <div
-            onClick={() => fileRef.current?.click()}
-            className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xl cursor-pointer hover:opacity-80"
-          >
-            {user?.avatar ? (
-              <img src={`${process.env.NEXT_PUBLIC_R2_URL}/${user.avatar}`} alt="avatar" className="w-16 h-16 rounded-full object-cover" />
-            ) : (
-              user?.name?.[0]?.toUpperCase()
-            )}
-          </div>
-          <div>
-            <p className="font-medium">{user?.name}</p>
-            <p className="text-sm text-gray-500">{user?.email}</p>
-            <button onClick={() => fileRef.current?.click()} className="text-xs text-blue-600 hover:underline mt-1">
-              Change photo
-            </button>
-          </div>
-          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
-        </div>
+      <PageHeader title="Profile" description="Manage your account settings" />
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Name</label>
-            <input {...register("name")} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
+      <div className="max-w-lg">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          {/* Avatar section */}
+          <div className="px-6 py-5 border-b border-slate-100 flex items-center gap-4">
+            <div className="relative group">
+              <div
+                onClick={() => fileRef.current?.click()}
+                className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-semibold text-xl cursor-pointer overflow-hidden"
+              >
+                {user?.avatar ? (
+                  <img
+                    src={`${process.env.NEXT_PUBLIC_R2_URL}/${user.avatar}`}
+                    alt="avatar"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  initials
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-500 hover:text-slate-700 transition-colors"
+              >
+                <Camera size={11} />
+              </button>
+            </div>
+            <div>
+              <p className="font-medium text-slate-900">{user?.name}</p>
+              <p className="text-sm text-slate-500">{user?.email}</p>
+            </div>
+            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
-            <input {...register("email")} type="email" className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
-          </div>
-          <hr />
-          <div>
-            <label className="block text-sm font-medium mb-1">Current password</label>
-            <input {...register("old_password")} type="password" className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            {errors.old_password && <p className="text-red-500 text-xs mt-1">{errors.old_password.message}</p>}
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">New password</label>
-            <input {...register("password")} type="password" className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          </div>
-          {success && <p className="text-green-600 text-sm">Profile updated successfully!</p>}
-          <button type="submit" disabled={isSubmitting} className="bg-blue-600 text-white rounded-lg py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
-            {isSubmitting ? "Saving..." : "Save changes"}
-          </button>
-        </form>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit(onSubmit)} className="px-6 py-5 flex flex-col gap-4">
+            <div className="grid grid-cols-2 gap-4">
+              <Input label="Name" error={errors.name?.message} {...register("name")} />
+              <Input label="Email" type="email" error={errors.email?.message} {...register("email")} />
+            </div>
+
+            <div className="border-t border-slate-100 pt-4">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Change password</p>
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  label="Current password"
+                  type="password"
+                  placeholder="••••••••"
+                  error={errors.old_password?.message}
+                  {...register("old_password")}
+                />
+                <Input
+                  label="New password"
+                  type="password"
+                  placeholder="••••••••"
+                  {...register("password")}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-1">
+              <Button type="submit" loading={isSubmitting}>
+                Save changes
+              </Button>
+            </div>
+          </form>
+        </div>
       </div>
     </>
   );

@@ -5,11 +5,10 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usersApi } from "@/lib/api/users";
 import { useRouter, useSearchParams } from "next/navigation";
+import Input from "@/components/ui/input";
+import Button from "@/components/ui/button";
 
-const schema = z.object({
-  password: z.string().min(6, "Minimum 6 characters"),
-});
-
+const schema = z.object({ password: z.string().min(6, "Minimum 6 characters") });
 type FormData = z.infer<typeof schema>;
 
 export default function ResetPasswordPage() {
@@ -17,9 +16,12 @@ export default function ResetPasswordPage() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
 
-  const { register, handleSubmit, formState: { errors, isSubmitting }, setError } = useForm<FormData>({
-    resolver: zodResolver(schema),
-  });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+  } = useForm<FormData>({ resolver: zodResolver(schema) });
 
   async function onSubmit(data: FormData) {
     try {
@@ -32,17 +34,30 @@ export default function ResetPasswordPage() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold mb-6 text-center">New password</h1>
+      <div className="mb-6">
+        <h1 className="text-xl font-semibold text-slate-900">New password</h1>
+        <p className="mt-1 text-sm text-slate-500">Choose a strong password.</p>
+      </div>
+
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">New password</label>
-          <input {...register("password")} type="password" className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
-        </div>
-        {errors.root && <p className="text-red-500 text-sm text-center">{errors.root.message}</p>}
-        <button type="submit" disabled={isSubmitting} className="bg-blue-600 text-white rounded-lg py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
-          {isSubmitting ? "Saving..." : "Reset password"}
-        </button>
+        <Input
+          label="New password"
+          type="password"
+          placeholder="••••••••"
+          error={errors.password?.message}
+          hint="Minimum 6 characters"
+          {...register("password")}
+        />
+
+        {errors.root && (
+          <p className="text-sm text-red-500 text-center bg-red-50 rounded-lg py-2 px-3">
+            {errors.root.message}
+          </p>
+        )}
+
+        <Button type="submit" loading={isSubmitting} className="w-full mt-1">
+          Reset password
+        </Button>
       </form>
     </>
   );
