@@ -27,12 +27,12 @@ export default function Sidebar() {
     <aside className="w-60 min-h-screen bg-slate-900 text-white flex flex-col shrink-0">
       {/* Logo */}
       <div className="px-5 py-5 border-b border-slate-800">
-        <div className="flex items-center gap-2.5">
+        <Link href="/products" className="flex items-center gap-2.5 w-fit">
           <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
             <Store size={16} className="text-white" />
           </div>
           <span className="font-semibold text-sm tracking-tight">API Vendas</span>
-        </div>
+        </Link>
       </div>
 
       {/* Nav */}
