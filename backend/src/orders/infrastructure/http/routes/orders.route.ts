@@ -2,6 +2,7 @@ import { Router } from "express";
 import { createOrderController } from "../controllers/create-order.controller";
 import { isAuthenticated } from "@/common/infrastructure/http/middlewares/isAuthenticated";
 import { getOrderController } from "../controllers/get-order.controller";
+import { searchOrderController } from "../controllers/search-order.controller";
 
 const ordersRouter = Router();
 
@@ -71,6 +72,7 @@ const ordersRouter = Router();
  *         description: Email already used on another order
  */
 ordersRouter.post("/", isAuthenticated, createOrderController);
+ordersRouter.get("/", isAuthenticated, searchOrderController);
 
 /**
  * @swagger

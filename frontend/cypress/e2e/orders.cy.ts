@@ -82,7 +82,7 @@ describe("Orders page", () => {
     cy.get('[data-testid="create-order-button"]').click();
 
     cy.contains("Customer is required").should("be.visible");
-    cy.contains("Add at least one product").should("be.visible");
+    cy.contains("Product is required").should("be.visible");
   });
 
   it("should remove product from order", () => {

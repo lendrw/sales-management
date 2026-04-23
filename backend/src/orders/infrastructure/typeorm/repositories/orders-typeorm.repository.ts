@@ -7,18 +7,21 @@ import {
   CreateOrderProps,
   OrdersRepository,
 } from "@/orders/domain/repositories/orders.repository";
-import { inject } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 import { DataSource, Repository } from "typeorm";
 import { Order } from "../entities/orders.entity";
 import { ProductsTypeormRepository } from "@/products/infrastructure/typeorm/repositories/products-typeorm.repository";
 import { NotFoundError } from "@/common/domain/errors/not-found-error";
 import { BadRequestError } from "@/common/domain/errors/bad-request-error";
 
+@injectable()
 export class OrdersTypeormRepository implements OrdersRepository {
+  sortableFields: string[] = ["created_at"];
+
   constructor(
     @inject("OrdersDefaultRepositoryTypeorm")
     private ordersRepository: Repository<Order>,
-    @inject("ProductsRepository")
+    @inject("ProductRepository")
     private productsRepository: ProductsTypeormRepository,
   ) {}
 
@@ -87,7 +90,35 @@ export class OrdersTypeormRepository implements OrdersRepository {
   }
 
   search(props: SearchInput): Promise<SearchOutput<OrderModel>> {
-    throw new Error("Method not implemented.");
+    const page = props.page ?? 1;
+    const perPage = props.per_page ?? 15;
+    const validSort =
+      (props.sort && this.sortableFields.includes(props.sort)) || false;
+    const dirOps = ["asc", "desc"];
+    const validSortDir =
+      (props.sort_dir && dirOps.includes(props.sort_dir.toLowerCase())) ||
+      false;
+    const orderByField = validSort ? props.sort : "created_at";
+    const orderByDir = validSortDir ? props.sort_dir : "desc";
+
+    return this.ordersRepository
+      .findAndCount({
+        order: { [orderByField]: orderByDir },
+        relations: {
+          order_products: true,
+        },
+        skip: (page - 1) * perPage,
+        take: perPage,
+      })
+      .then(([orders, total]) => ({
+        items: orders,
+        per_page: perPage,
+        total,
+        current_page: page,
+        sort: orderByField,
+        sort_dir: orderByDir,
+        filter: props.filter,
+      }));
   }
 
   protected async _get(id: string): Promise<OrderModel> {
