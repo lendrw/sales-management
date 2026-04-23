@@ -39,7 +39,12 @@ export default function LoginPage() {
         <p className="mt-1 text-sm text-slate-500">Sign in to your account</p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" data-testid="login-form" noValidate>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col gap-4"
+        data-testid="login-form"
+        noValidate
+      >
         <Input
           label="Email"
           type="email"
@@ -58,23 +63,37 @@ export default function LoginPage() {
         />
 
         {errors.root && (
-          <p className="text-sm text-red-500 text-center bg-red-50 rounded-lg py-2 px-3" data-testid="error-message">
+          <p
+            className="text-sm text-red-500 text-center bg-red-50 rounded-lg py-2 px-3"
+            data-testid="error-message"
+          >
             {errors.root.message}
           </p>
         )}
 
-        <Button type="submit" loading={isSubmitting} className="w-full mt-1" data-testid="sign-in-button">
+        <Button
+          type="submit"
+          loading={isSubmitting}
+          className="w-full mt-1"
+          data-testid="sign-in-button"
+        >
           Sign in
         </Button>
       </form>
 
       <div className="mt-5 flex flex-col gap-2 text-center text-sm">
-        <Link href="/forgot-password" className="text-emerald-600 hover:text-emerald-700 transition-colors">
+        <Link
+          href="/forgot-password"
+          className="text-emerald-600 hover:text-emerald-700 transition-colors"
+        >
           Forgot your password?
         </Link>
         <span className="text-slate-400">
           No account?{" "}
-          <Link href="/register" className="text-slate-600 hover:text-slate-900 font-medium transition-colors">
+          <Link
+            href="/register"
+            className="text-slate-600 hover:text-slate-900 font-medium transition-colors"
+          >
             Create one
           </Link>
         </span>

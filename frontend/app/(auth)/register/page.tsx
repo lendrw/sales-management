@@ -11,7 +11,7 @@ import Button from "@/components/ui/button";
 
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email"),
+  email: z.email("Invalid email"),
   password: z.string().min(6, "Minimum 6 characters"),
 });
 
@@ -31,7 +31,9 @@ export default function RegisterPage() {
       await usersApi.register(data);
       await login(data.email, data.password);
     } catch {
-      setError("root", { message: "Failed to create account. Email already in use?" });
+      setError("root", {
+        message: "Failed to create account. Email already in use?",
+      });
     }
   }
 
@@ -42,25 +44,62 @@ export default function RegisterPage() {
         <p className="mt-1 text-sm text-slate-500">Get started for free</p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <Input label="Name" placeholder="John Doe" error={errors.name?.message} {...register("name")} />
-        <Input label="Email" type="email" placeholder="you@example.com" error={errors.email?.message} {...register("email")} />
-        <Input label="Password" type="password" placeholder="••••••••" error={errors.password?.message} hint="Minimum 6 characters" {...register("password")} />
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col gap-4"
+        data-testid="register-form"
+        noValidate
+      >
+        <Input
+          label="Name"
+          placeholder="John Doe"
+          error={errors.name?.message}
+          data-testid="name-input"
+          {...register("name")}
+        />
+        <Input
+          label="Email"
+          type="email"
+          placeholder="you@example.com"
+          error={errors.email?.message}
+          data-testid="email-input"
+          {...register("email")}
+        />
+        <Input
+          label="Password"
+          type="password"
+          placeholder="••••••••"
+          error={errors.password?.message}
+          hint="Minimum 6 characters"
+          data-testid="password-input"
+          {...register("password")}
+        />
 
         {errors.root && (
-          <p className="text-sm text-red-500 text-center bg-red-50 rounded-lg py-2 px-3">
+          <p
+            className="text-sm text-red-500 text-center bg-red-50 rounded-lg py-2 px-3"
+            data-testid="error-message"
+          >
             {errors.root.message}
           </p>
         )}
 
-        <Button type="submit" loading={isSubmitting} className="w-full mt-1">
+        <Button
+          type="submit"
+          loading={isSubmitting}
+          className="w-full mt-1"
+          data-testid="register-button"
+        >
           Create account
         </Button>
       </form>
 
       <p className="mt-5 text-sm text-center text-slate-400">
         Already have an account?{" "}
-        <Link href="/login" className="text-slate-600 hover:text-slate-900 font-medium transition-colors">
+        <Link
+          href="/login"
+          className="text-slate-600 hover:text-slate-900 font-medium transition-colors"
+        >
           Sign in
         </Link>
       </p>
