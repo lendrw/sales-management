@@ -39,23 +39,24 @@ export default function ResetPasswordPage() {
         <p className="mt-1 text-sm text-slate-500">Choose a strong password.</p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" data-testid="reset-password-form">
         <Input
           label="New password"
           type="password"
           placeholder="••••••••"
           error={errors.password?.message}
           hint="Minimum 6 characters"
+          data-testid="password-input"
           {...register("password")}
         />
 
         {errors.root && (
-          <p className="text-sm text-red-500 text-center bg-red-50 rounded-lg py-2 px-3">
+          <p className="text-sm text-red-500 text-center bg-red-50 rounded-lg py-2 px-3" data-testid="error-message">
             {errors.root.message}
           </p>
         )}
 
-        <Button type="submit" loading={isSubmitting} className="w-full mt-1">
+        <Button type="submit" loading={isSubmitting} className="w-full mt-1" data-testid="reset-password-button">
           Reset password
         </Button>
       </form>

@@ -17,6 +17,7 @@ export default function Pagination({ current, last, onChange }: Props) {
         <button
           onClick={() => onChange(current - 1)}
           disabled={current === 1}
+          data-testid="pagination-prev"
           className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 text-xs text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           <ChevronLeft size={13} />
@@ -25,6 +26,7 @@ export default function Pagination({ current, last, onChange }: Props) {
         <button
           onClick={() => onChange(current + 1)}
           disabled={current === last}
+          data-testid="pagination-next"
           className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 text-xs text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           Next

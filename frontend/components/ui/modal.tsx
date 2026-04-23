@@ -1,9 +1,10 @@
 "use client";
 
+import type { HTMLAttributes } from "react";
 import { useEffect } from "react";
 import { X } from "lucide-react";
 
-type Props = {
+type Props = HTMLAttributes<HTMLDivElement> & {
   open: boolean;
   onClose: () => void;
   title: string;
@@ -17,7 +18,14 @@ const sizes = {
   lg: "max-w-lg",
 };
 
-export default function Modal({ open, onClose, title, children, size = "md" }: Props) {
+export default function Modal({
+  open,
+  onClose,
+  title,
+  children,
+  size = "md",
+  ...props
+}: Props) {
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -32,6 +40,7 @@ export default function Modal({ open, onClose, title, children, size = "md" }: P
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
+      {...props}
     >
       {/* Backdrop */}
       <div

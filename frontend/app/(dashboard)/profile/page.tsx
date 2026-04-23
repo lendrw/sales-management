@@ -99,17 +99,35 @@ export default function ProfilePage() {
               </button>
             </div>
             <div>
-              <p className="font-medium text-slate-900">{user?.name}</p>
-              <p className="text-sm text-slate-500">{user?.email}</p>
+              <p className="font-medium text-slate-900" data-testid="user-name">{user?.name}</p>
+              <p className="text-sm text-slate-500" data-testid="user-email">{user?.email}</p>
             </div>
-            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarChange}
+              data-testid="avatar-upload"
+            />
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="px-6 py-5 flex flex-col gap-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="px-6 py-5 flex flex-col gap-4" data-testid="profile-form">
             <div className="grid grid-cols-2 gap-4">
-              <Input label="Name" error={errors.name?.message} {...register("name")} />
-              <Input label="Email" type="email" error={errors.email?.message} {...register("email")} />
+              <Input
+                label="Name"
+                error={errors.name?.message}
+                data-testid="profile-name-input"
+                {...register("name")}
+              />
+              <Input
+                label="Email"
+                type="email"
+                error={errors.email?.message}
+                data-testid="profile-email-input"
+                {...register("email")}
+              />
             </div>
 
             <div className="border-t border-slate-100 pt-4">
@@ -120,19 +138,21 @@ export default function ProfilePage() {
                   type="password"
                   placeholder="••••••••"
                   error={errors.old_password?.message}
+                  data-testid="current-password-input"
                   {...register("old_password")}
                 />
                 <Input
                   label="New password"
                   type="password"
                   placeholder="••••••••"
+                  data-testid="new-password-input"
                   {...register("password")}
                 />
               </div>
             </div>
 
             <div className="flex justify-end pt-1">
-              <Button type="submit" loading={isSubmitting}>
+              <Button type="submit" loading={isSubmitting} data-testid="save-profile-button">
                 Save changes
               </Button>
             </div>

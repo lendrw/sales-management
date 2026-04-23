@@ -52,6 +52,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
               key={href}
               href={href}
               onClick={onClose}
+              data-testid={`sidebar-${href.slice(1)}`}
               className={[
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150",
                 active
@@ -80,6 +81,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
         <button
           onClick={logout}
           className="mt-1 w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-500 hover:text-red-400 hover:bg-slate-800 transition-colors"
+          data-testid="sidebar-logout"
         >
           <LogOut size={13} />
           Sign out

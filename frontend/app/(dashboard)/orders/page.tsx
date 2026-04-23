@@ -125,14 +125,14 @@ export default function OrdersPage() {
         title="Orders"
         description="Track and manage customer orders"
         action={
-          <Button onClick={openCreate}>
+          <Button onClick={openCreate} data-testid="new-order-button">
             <Plus size={15} />
             New order
           </Button>
         }
       />
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm" data-testid="orders-table">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-100">
@@ -159,6 +159,7 @@ export default function OrdersPage() {
                     onClick={() => handleView(order.id)}
                     className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
                     title="View order"
+                    data-testid="view-order-button"
                   >
                     <Eye size={14} />
                   </button>
@@ -177,9 +178,9 @@ export default function OrdersPage() {
       </div>
 
       {/* Create order modal */}
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="New order">
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-          <Select label="Customer" error={errors.customer_id?.message} {...register("customer_id")}>
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="New order" data-testid="order-modal">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" data-testid="order-form">
+          <Select label="Customer" error={errors.customer_id?.message} data-testid="order-customer-select" {...register("customer_id")}>
             <option value="">Select a customer...</option>
             {customers.map((c) => (
               <option key={c.id} value={c.id}>
@@ -195,6 +196,7 @@ export default function OrdersPage() {
                 <div key={field.id} className="flex gap-2 items-start">
                   <select
                     {...register(`products.${i}.id`)}
+                    data-testid="order-product-select"
                     className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 hover:border-slate-300 transition-colors"
                   >
                     <option value="">Select product...</option>
@@ -209,6 +211,7 @@ export default function OrdersPage() {
                     type="number"
                     min={1}
                     placeholder="Qty"
+                    data-testid="order-quantity-input"
                     className="w-20 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 hover:border-slate-300 transition-colors"
                   />
                   {fields.length > 1 && (
@@ -216,6 +219,7 @@ export default function OrdersPage() {
                       type="button"
                       onClick={() => remove(i)}
                       className="p-2 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors mt-0.5"
+                      data-testid="remove-product-button"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -227,6 +231,7 @@ export default function OrdersPage() {
               type="button"
               onClick={() => append({ id: "", quantity: 1 })}
               className="mt-2 flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 transition-colors"
+              data-testid="add-product-button"
             >
               <Plus size={12} />
               Add product
@@ -236,14 +241,14 @@ export default function OrdersPage() {
             )}
           </div>
 
-          <Button type="submit" loading={isSubmitting} className="w-full mt-1">
+          <Button type="submit" loading={isSubmitting} className="w-full mt-1" data-testid="create-order-button">
             Create order
           </Button>
         </form>
       </Modal>
 
       {/* View order modal */}
-      <Modal open={!!viewOrder} onClose={() => setViewOrder(null)} title="Order details">
+      <Modal open={!!viewOrder} onClose={() => setViewOrder(null)} title="Order details" data-testid="order-details-modal">
         {viewOrder && (
           <div className="flex flex-col gap-3 text-sm">
             <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-lg">

@@ -22,6 +22,8 @@ export default function ForgotPasswordPage() {
     setError,
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
+  const errorMessage = errors.root?.message ?? errors.email?.message;
+
   async function onSubmit(data: FormData) {
     try {
       await usersApi.forgotPassword(data.email);
@@ -39,9 +41,14 @@ export default function ForgotPasswordPage() {
         </div>
         <div>
           <p className="font-semibold text-slate-900">Check your inbox</p>
-          <p className="text-sm text-slate-500 mt-1">We sent you a link to reset your password.</p>
+          <p className="text-sm text-slate-500 mt-1">
+            We sent you a link to reset your password.
+          </p>
         </div>
-        <Link href="/login" className="text-sm text-emerald-600 hover:text-emerald-700 transition-colors flex items-center gap-1">
+        <Link
+          href="/login"
+          className="text-sm text-emerald-600 hover:text-emerald-700 transition-colors flex items-center gap-1"
+        >
           <ArrowLeft size={13} />
           Back to sign in
         </Link>
@@ -52,26 +59,53 @@ export default function ForgotPasswordPage() {
   return (
     <>
       <div className="mb-6">
-        <h1 className="text-xl font-semibold text-slate-900">Forgot password</h1>
-        <p className="mt-1 text-sm text-slate-500">We'll send you a reset link.</p>
+        <h1 className="text-xl font-semibold text-slate-900">
+          Forgot password
+        </h1>
+        <p className="mt-1 text-sm text-slate-500">
+          We'll send you a reset link.
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <Input label="Email" type="email" placeholder="you@example.com" error={errors.email?.message} {...register("email")} />
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col gap-4"
+        data-testid="forgot-password-form"
+        noValidate
+      >
+        <Input
+          label="Email"
+          type="email"
+          placeholder="you@example.com"
+          error={errors.email?.message}
+          data-testid="email-input"
+          {...register("email")}
+        />
 
-        {errors.root && (
-          <p className="text-sm text-red-500 text-center bg-red-50 rounded-lg py-2 px-3">
-            {errors.root.message}
+        {errorMessage && (
+          <p
+            className="text-sm text-red-500 text-center bg-red-50 rounded-lg py-2 px-3"
+            data-testid="error-message"
+          >
+            {errorMessage}
           </p>
         )}
 
-        <Button type="submit" loading={isSubmitting} className="w-full mt-1">
+        <Button
+          type="submit"
+          loading={isSubmitting}
+          className="w-full mt-1"
+          data-testid="send-reset-button"
+        >
           Send reset link
         </Button>
       </form>
 
       <p className="mt-5 text-center">
-        <Link href="/login" className="text-sm text-slate-500 hover:text-slate-700 flex items-center justify-center gap-1 transition-colors">
+        <Link
+          href="/login"
+          className="text-sm text-slate-500 hover:text-slate-700 flex items-center justify-center gap-1 transition-colors"
+        >
           <ArrowLeft size={13} />
           Back to sign in
         </Link>

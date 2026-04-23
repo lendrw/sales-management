@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
@@ -37,9 +38,15 @@ function formatCurrency(cents: number) {
 }
 
 export default function ProductsPage() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const [data, setData] = useState<{ items: Product[]; last_page: number } | null>(null);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(() => {
+    const rawPage = Number(searchParams.get("page") ?? "1");
+    return Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
+  });
   const [filter, setFilter] = useState("");
   const debouncedFilter = useDebounce(filter, 350);
   const [loading, setLoading] = useState(true);
@@ -78,6 +85,27 @@ export default function ProductsPage() {
     load(controller.signal);
     return () => controller.abort(); // cancel on unmount or dep change
   }, [load]);
+
+  useEffect(() => {
+    const rawPage = Number(searchParams.get("page") ?? "1");
+    const nextPage = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
+    setPage((currentPage) => (currentPage === nextPage ? currentPage : nextPage));
+  }, [searchParams]);
+
+  const updatePage = useCallback(
+    (nextPage: number) => {
+      setPage(nextPage);
+      const params = new URLSearchParams(searchParams.toString());
+      if (nextPage <= 1) {
+        params.delete("page");
+      } else {
+        params.set("page", String(nextPage));
+      }
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname);
+    },
+    [pathname, router, searchParams]
+  );
 
   const openCreate = useCallback(() => {
     setEditing(null);
@@ -158,6 +186,7 @@ export default function ProductsPage() {
               onClick={() => openEdit(p)}
               className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
               title="Edit"
+              data-testid="edit-product-button"
             >
               <Pencil size={14} />
             </button>
@@ -165,6 +194,7 @@ export default function ProductsPage() {
               onClick={() => setDeletingId(p.id)}
               className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
               title="Delete"
+              data-testid="delete-product-button"
             >
               <Trash2 size={14} />
             </button>
@@ -181,7 +211,7 @@ export default function ProductsPage() {
         title="Products"
         description="Manage your product catalog"
         action={
-          <Button onClick={openCreate}>
+          <Button onClick={openCreate} data-testid="new-product-button">
             <Plus size={15} />
             New product
           </Button>
@@ -195,14 +225,21 @@ export default function ProductsPage() {
           value={filter}
           onChange={(e) => {
             setFilter(e.target.value);
-            setPage(1);
+            updatePage(1);
           }}
+          data-testid="search-input"
           className="w-full border border-slate-200 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 hover:border-slate-300 transition-colors"
         />
       </div>
 
-      <Table columns={columns} data={data?.items ?? []} keyExtractor={(p) => p.id} loading={loading} />
-      <Pagination current={page} last={data?.last_page ?? 1} onChange={setPage} />
+      <Table
+        columns={columns}
+        data={data?.items ?? []}
+        keyExtractor={(p) => p.id}
+        loading={loading}
+        data-testid="products-table"
+      />
+      <Pagination current={page} last={data?.last_page ?? 1} onChange={updatePage} />
 
       <ConfirmDialog
         open={!!deletingId}
@@ -211,11 +248,12 @@ export default function ProductsPage() {
         confirmLabel="Delete"
         onConfirm={handleDelete}
         onCancel={() => setDeletingId(null)}
+        data-testid="confirm-dialog"
       />
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? "Edit product" : "New product"}>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-          <Input label="Name" error={errors.name?.message} {...register("name")} />
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? "Edit product" : "New product"} data-testid="product-modal">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" data-testid="product-form">
+          <Input label="Name" error={errors.name?.message} data-testid="product-name-input" {...register("name")} />
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium text-slate-700">Price</label>
             <Controller
@@ -244,14 +282,15 @@ export default function ProductsPage() {
                     setPriceCents(cents);
                     field.onChange(cents / 100);
                   }}
+                  data-testid="product-price-input"
                   className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 hover:border-slate-300 transition-colors"
                 />
               )}
             />
             {errors.price && <p className="text-xs text-red-500">{errors.price.message}</p>}
           </div>
-          <Input label="Stock" type="number" min="0" error={errors.quantity?.message} {...register("quantity")} />
-          <Button type="submit" loading={isSubmitting} className="w-full mt-1">
+          <Input label="Stock" type="number" min="0" error={errors.quantity?.message} data-testid="product-stock-input" {...register("quantity")} />
+          <Button type="submit" loading={isSubmitting} className="w-full mt-1" data-testid="save-product-button">
             {editing ? "Save changes" : "Create product"}
           </Button>
         </form>

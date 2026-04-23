@@ -10,6 +10,7 @@ type Props<T> = {
   data: T[];
   keyExtractor: (row: T) => string;
   loading?: boolean;
+  "data-testid"?: string;
 };
 
 function SkeletonRow({ cols }: { cols: number }) {
@@ -24,11 +25,11 @@ function SkeletonRow({ cols }: { cols: number }) {
   );
 }
 
-export default function Table<T>({ columns, data, keyExtractor, loading }: Props<T>) {
+export default function Table<T>({ columns, data, keyExtractor, loading, "data-testid": testId }: Props<T>) {
   const alignClass = { left: "text-left", right: "text-right", center: "text-center" };
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm" data-testid={testId}>
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-slate-100">
