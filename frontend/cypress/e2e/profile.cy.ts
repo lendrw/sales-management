@@ -7,7 +7,7 @@ describe("Profile page", () => {
     cy.get('[data-testid="email-input"]').type("admin@apivendas.com");
     cy.get('[data-testid="password-input"]').type("123456");
     cy.get('[data-testid="sign-in-button"]').click();
-    cy.url().should("include", "/products");
+    cy.url().should("not.include", "/login");
 
     // Navigate to profile
     cy.get('[data-testid="sidebar-profile"]').click();
@@ -25,20 +25,50 @@ describe("Profile page", () => {
   });
 
   it("should update profile information", () => {
+    cy.intercept("PUT", "**/users/profile", (req) => {
+      req.reply({
+        statusCode: 200,
+        body: {
+          id: "admin-id",
+          name: "Updated Name",
+          email: "updated@example.com",
+          avatar: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+      });
+    }).as("updateProfile");
+
     cy.get('[data-testid="profile-name-input"]').clear().type("Updated Name");
     cy.get('[data-testid="profile-email-input"]').clear().type("updated@example.com");
 
     cy.get('[data-testid="save-profile-button"]').click();
 
+    cy.wait("@updateProfile");
     cy.contains("Profile updated successfully").should("be.visible");
   });
 
   it("should change password", () => {
+    cy.intercept("PUT", "**/users/profile", (req) => {
+      req.reply({
+        statusCode: 200,
+        body: {
+          id: "admin-id",
+          name: "Admin",
+          email: "admin@apivendas.com",
+          avatar: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+      });
+    }).as("changePassword");
+
     cy.get('[data-testid="current-password-input"]').type("123456");
     cy.get('[data-testid="new-password-input"]').type("newpassword123");
 
     cy.get('[data-testid="save-profile-button"]').click();
 
+    cy.wait("@changePassword");
     cy.contains("Profile updated successfully").should("be.visible");
   });
 

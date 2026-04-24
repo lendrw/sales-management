@@ -1,9 +1,10 @@
 "use client";
 
+import type { HTMLAttributes } from "react";
 import { AlertTriangle } from "lucide-react";
 import Button from "./button";
 
-type Props = {
+type Props = HTMLAttributes<HTMLDivElement> & {
   open: boolean;
   title: string;
   description?: string;
@@ -19,10 +20,16 @@ export default function ConfirmDialog({
   confirmLabel = "Confirm",
   onConfirm,
   onCancel,
+  ...props
 }: Props) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      {...props}
+    >
       <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={onCancel} />
       <div className="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl p-6 animate-in fade-in zoom-in-95 duration-200">
         <div className="flex gap-4">
@@ -35,10 +42,10 @@ export default function ConfirmDialog({
           </div>
         </div>
         <div className="flex justify-end gap-2 mt-6">
-          <Button variant="secondary" onClick={onCancel}>
+          <Button variant="secondary" onClick={onCancel} data-testid="cancel-confirm-button">
             Cancel
           </Button>
-          <Button variant="danger" onClick={onConfirm}>
+          <Button variant="danger" onClick={onConfirm} data-testid="confirm-delete-button">
             {confirmLabel}
           </Button>
         </div>

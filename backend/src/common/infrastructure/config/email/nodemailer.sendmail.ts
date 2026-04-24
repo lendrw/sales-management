@@ -27,7 +27,7 @@ export async function apiSendEmail(props: SendEmailProps): Promise<void> {
     {
       from: {
         name: props.from?.name || "API Vendas",
-        address: props.from?.email || "aluiziodeveloper@gmail.com",
+        address: props.from?.email || "leandrocabral321@gmail.com",
       },
       to: {
         name: props.to.name,

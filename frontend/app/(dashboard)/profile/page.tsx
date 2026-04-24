@@ -99,8 +99,12 @@ export default function ProfilePage() {
               </button>
             </div>
             <div>
-              <p className="font-medium text-slate-900" data-testid="user-name">{user?.name}</p>
-              <p className="text-sm text-slate-500" data-testid="user-email">{user?.email}</p>
+              <p className="font-medium text-slate-900" data-testid="user-name">
+                {user?.name}
+              </p>
+              <p className="text-sm text-slate-500" data-testid="user-email">
+                {user?.email}
+              </p>
             </div>
             <input
               ref={fileRef}
@@ -113,7 +117,12 @@ export default function ProfilePage() {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="px-6 py-5 flex flex-col gap-4" data-testid="profile-form">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="px-6 py-5 flex flex-col gap-4"
+            data-testid="profile-form"
+            noValidate
+          >
             <div className="grid grid-cols-2 gap-4">
               <Input
                 label="Name"
@@ -131,7 +140,9 @@ export default function ProfilePage() {
             </div>
 
             <div className="border-t border-slate-100 pt-4">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Change password</p>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">
+                Change password
+              </p>
               <div className="grid grid-cols-2 gap-4">
                 <Input
                   label="Current password"
@@ -152,7 +163,11 @@ export default function ProfilePage() {
             </div>
 
             <div className="flex justify-end pt-1">
-              <Button type="submit" loading={isSubmitting} data-testid="save-profile-button">
+              <Button
+                type="submit"
+                loading={isSubmitting}
+                data-testid="save-profile-button"
+              >
                 Save changes
               </Button>
             </div>

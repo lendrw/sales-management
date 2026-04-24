@@ -61,7 +61,14 @@ export default function ProductsPage() {
     reset,
     control,
     formState: { errors, isSubmitting },
-  } = useForm<FormData>({ resolver: zodResolver(schema) });
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      name: "",
+      price: 0,
+      quantity: 0,
+    },
+  });
 
   // Stable load with AbortController to prevent race conditions and stale state updates
   const load = useCallback(

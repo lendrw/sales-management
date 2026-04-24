@@ -1,6 +1,9 @@
 /// <reference types="cypress" />
 
 describe("Products page", () => {
+  const uniqueProductName = (prefix: string) =>
+    `${prefix} ${Date.now()} ${Cypress._.random(1000, 9999)}`;
+
   beforeEach(() => {
     // Login before each test
     cy.visit("/login");
@@ -36,30 +39,36 @@ describe("Products page", () => {
   });
 
   it("should create a new product", () => {
+    const productName = uniqueProductName("Test Product");
+
     cy.get('[data-testid="new-product-button"]').click();
 
-    cy.get('[data-testid="product-name-input"]').type("Test Product");
+    cy.get('[data-testid="product-name-input"]').type(productName);
     cy.get('[data-testid="product-price-input"]').type("29.99");
     cy.get('[data-testid="product-stock-input"]').type("10");
 
     cy.get('[data-testid="save-product-button"]').click();
 
     cy.get('[data-testid="product-modal"]').should("not.exist");
-    cy.contains("Test Product").should("be.visible");
+    cy.contains(productName).should("be.visible");
   });
 
   it("should edit a product", () => {
+    const updatedProductName = uniqueProductName("Updated Product");
+
     // Click edit button on first product
     cy.get('[data-testid="edit-product-button"]').first().click();
 
     cy.get('[data-testid="product-modal"]').should("be.visible");
     cy.contains("Edit product").should("be.visible");
 
-    cy.get('[data-testid="product-name-input"]').clear().type("Updated Product");
+    cy.get('[data-testid="product-name-input"]')
+      .clear()
+      .type(updatedProductName);
     cy.get('[data-testid="save-product-button"]').click();
 
     cy.get('[data-testid="product-modal"]').should("not.exist");
-    cy.contains("Updated Product").should("be.visible");
+    cy.contains(updatedProductName).should("be.visible");
   });
 
   it("should delete a product", () => {

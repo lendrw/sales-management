@@ -66,10 +66,10 @@ Precisaremos retornar as informações de um pedido específico, com todas as in
   "updated_at": "2023-11-28T07:19:12.431Z",
   "customer": {
     "id": "c3264f2a-4048-63ae-bd42-593860adf6e9",
-    "name": "Aluizio Developer",
-    "email": "aluiziodeveloper@gmail.com",
-    "created_at": "2023-11-28T07:19:12.430Z",
-    "updated_at": "2023-11-28T07:19:12.431Z",
+    "name": "Leandro Freire",
+    "email": "leandrocabral321@gmail.com",
+    "created_at": "2025-11-28T07:19:12.430Z",
+    "updated_at": "2025-11-28T07:19:12.431Z",
   },
   "order_products": [
     {
@@ -78,8 +78,8 @@ Precisaremos retornar as informações de um pedido específico, com todas as in
       "quantity": 1,
       "order_id": "b5694f2a-4048-63ae-bd42-593860adf6e9",
       "id": "e1694f2a-63ae-4048-9a8a-593860adf6e9",
-      "created_at": "2023-11-28T07:19:12.430Z",
-      "updated_at": "2023-11-28T07:19:12.431Z",
+      "created_at": "2025-11-28T07:19:12.430Z",
+      "updated_at": "2025-11-28T07:19:12.431Z",
     },
     {
       "product_id": "b5694f2a-3f31-40c6-803d-593860adf6e9",
@@ -87,8 +87,8 @@ Precisaremos retornar as informações de um pedido específico, com todas as in
       "quantity": 3,
       "order_id": "b5694f2a-4048-63ae-bd42-593860adf6e9",
       "id": "c4694f2a-63ae-4048-9a8a-593860adf6e9",
-      "created_at": "2023-11-28T07:19:12.430Z",
-      "updated_at": "2023-11-28T07:19:12.431Z",
+      "created_at": "2025-11-28T07:19:12.430Z",
+      "updated_at": "2025-11-28T07:19:12.431Z",
     }
   ]
 }
