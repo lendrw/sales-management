@@ -2,20 +2,32 @@
 
 describe("Reset Password flow", () => {
   it("should reset password successfully", () => {
+    cy.intercept("POST", "**/password/reset", {
+      statusCode: 200,
+      body: {},
+    }).as("resetPassword");
+
     cy.visit("/reset-password?token=valid-token");
 
     cy.get('[data-testid="password-input"]').type("newpassword123");
     cy.get('[data-testid="reset-password-button"]').click();
 
+    cy.wait("@resetPassword");
     cy.url().should("include", "/login");
   });
 
   it("should display error for invalid token", () => {
+    cy.intercept("POST", "**/password/reset", {
+      statusCode: 400,
+      body: { message: "Invalid or expired token" },
+    }).as("resetPassword");
+
     cy.visit("/reset-password?token=invalid-token");
 
     cy.get('[data-testid="password-input"]').type("newpassword123");
     cy.get('[data-testid="reset-password-button"]').click();
 
+    cy.wait("@resetPassword");
     cy.get('[data-testid="error-message"]').should("be.visible");
   });
 

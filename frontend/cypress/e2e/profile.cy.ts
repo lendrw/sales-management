@@ -91,9 +91,24 @@ describe("Profile page", () => {
   });
 
   it("should upload avatar", () => {
-    // Mock file upload
+    cy.intercept("PATCH", "**/users/avatar", (req) => {
+      req.reply({
+        statusCode: 200,
+        body: {
+          id: "admin-id",
+          name: "Admin",
+          email: "admin@apivendas.com",
+          avatar: "avatar.png",
+          avatar_url: "http://localhost:3333/files/avatar.png",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+      });
+    }).as("updateAvatar");
+
     cy.get('[data-testid="avatar-upload"]').selectFile("cypress/fixtures/example.json", { force: true });
 
+    cy.wait("@updateAvatar");
     cy.contains("Avatar updated").should("be.visible");
   });
 });
