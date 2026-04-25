@@ -1,19 +1,19 @@
 ## Class transformer
 
-Neste módulo estaremos instalando e configurando o uso da biblioteca `Class Transformer` em nossa API.
+In this module, we will install and configure the `Class Transformer` library in our API.
 
-[Class Transformer](https://github.com/typestack/class-transformer) é uma biblioteca JavaScript que facilita a conversão entre classes TypeScript/JavaScript e objetos planos (plain objects). Ela é frequentemente usada em conjunto com frameworks como o NestJs para simplificar a serialização e desserialização de dados.
+[Class Transformer](https://github.com/typestack/class-transformer) is a JavaScript library that makes it easier to convert between TypeScript/JavaScript classes and plain objects. It is often used together with frameworks such as NestJS to simplify data serialization and deserialization.
 
-Class Transformer permitirá, entre outras coisas, modificar a forma como as informações de nossas Entidades são retornadas, podendo inclusive inibir atributos que não desejamos incluir nas respostas.
+Among other things, Class Transformer will allow us to modify how information from our Entities is returned, including hiding attributes that we do not want to include in responses.
 
-Principais recursos e benefícios:
+Main features and benefits:
 
-- `Serialização e desserialização`: Facilita a transformação de objetos de classe em formatos como JSON e vice-versa. Isso é especialmente útil ao lidar com APIs REST, onde os dados geralmente são transmitidos em JSON.
-- `Mapeamento de propriedades`: Permite mapear propriedades de classes para diferentes nomes ou formatos em objetos planos, usando decoradores como @Expose, @Type e @Transform.
-- `Validação`: Pode ser integrado com bibliotecas de validação como o class-validator para garantir a integridade dos dados durante a transformação.
-- `Simplificação do código`: Reduz a quantidade de código clichê necessário para realizar a conversão manual de objetos, tornando o código mais limpo e legível.
+- `Serialization and deserialization`: Makes it easier to transform class objects into formats such as JSON and vice versa. This is especially useful when dealing with REST APIs, where data is usually transmitted as JSON.
+- `Property mapping`: Allows class properties to be mapped to different names or formats in plain objects, using decorators such as @Expose, @Type, and @Transform.
+- `Validation`: Can be integrated with validation libraries such as class-validator to ensure data integrity during transformation.
+- `Code simplification`: Reduces the amount of boilerplate code needed to manually convert objects, making the code cleaner and more readable.
 
-Exemplo de uso:
+Usage example:
 
 ```ts
 import { plainToClass, classToPlain } from 'class-transformer';
@@ -25,7 +25,6 @@ class User {
 }
 
 const userPlainObject = { id: 1, firstName: 'John', lastName: 'Doe' };
-const userClassObject = plainToClass(User, userPlainObject); // Converte para objeto de classe
-const plainObjectAgain = classToPlain(userClassObject); // Converte de volta para objeto plano
+const userClassObject = plainToClass(User, userPlainObject); // Converts to a class object
+const plainObjectAgain = classToPlain(userClassObject); // Converts back to a plain object
 ```
-

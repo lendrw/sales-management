@@ -1,15 +1,15 @@
-## Interface para Repositórios
+## Interface for Repositories
 
-Um Repositório terá como responsabilidade salvar, buscar, atualizar e excluir os dados em uma estrutura de dados, podendo ser um SGBD, arquivo, memória, etc.
+A Repository is responsible for saving, fetching, updating, and deleting data in a data structure, which may be a DBMS, file, memory, etc.
 
-> IMPORTANTE: um repositório NAO deve conter regras de negócio. As regras de negócios devem ficar nas entidades e/ou nos casos de usos.
+> IMPORTANT: a repository must NOT contain business rules. Business rules should stay in entities and/or use cases.
 
-Outro ponto importante para ressaltar é que um Repositório terá que acessar recursos externos, que estarão nas camadas mais externas, para acessar a estrutura de dados.
+Another important point to highlight is that a Repository will need to access external resources, which are located in the outer layers, to access the data structure.
 
-Por conta disso, precisaremos criar "contratos" através de interfaces para isolar esses recursos externos da camada de domínio da aplicacao.
+Because of this, we will need to create "contracts" through interfaces to isolate these external resources from the application's domain layer.
 
-Ou seja, na camada de domínio ficarão as interfaces que definem tudo que precisaremos manipular através de um repositório.
+In other words, the domain layer will contain the interfaces that define everything we need to manipulate through a repository.
 
-Nesta aula criaremos a abstração com as definições dos contratos a serem seguidos por cada implementação de repositórios em nossa api.
+In this lesson, we will create the abstraction with the contract definitions to be followed by each repository implementation in our API.
 
-É importante lembrar que essa interface deve representar qualquer tipo de model a ser manipulado.
+It is important to remember that this interface should represent any type of model to be manipulated.

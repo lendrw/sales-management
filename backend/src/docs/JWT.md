@@ -1,26 +1,26 @@
-# Visao geral JWT
+# JWT overview
 
-## O que é JWT?
+## What is JWT?
 
-[JWT](https://jwt.io/) é uma forma segura de transmitir informações entre duas partes, seguindo o padrão definido na RFC 7519.
+[JWT](https://jwt.io/) is a secure way to transmit information between two parties, following the standard defined in RFC 7519.
 
-A autenticação é stateless ou sem estado, ou seja, as partes não armazenam as informações de acesso, que são mantidas no próprio token.
+Authentication is stateless, meaning the parties do not store access information, which is kept inside the token itself.
 
-O token é composto por 3 partes:
+The token is made up of 3 parts:
 
-* `Header` - informações do próprio token, como por exemplo o tipo de algoritmo usado.
+* `Header` - information about the token itself, such as the type of algorithm used.
 
-* `Payload` - contém as informações que desejamos enviar entre as duas partes.
+* `Payload` - contains the information we want to send between the two parties.
 
-* `Verify Signature` - é a garantia de que um token não foi alterado; o resultado dessa assinatura é uma combinação com os outros três campos, e se algo for modificado em qualquer dos campos, a assinatura também se modificará, e então o token será considerado inválido.
+* `Verify Signature` - guarantees that a token has not been changed. The result of this signature is a combination of the other fields, and if anything is modified in any field, the signature will also change, causing the token to be considered invalid.
 
-Para validar o token, e consequentemente as informações, pode-se ter uma chave secreta ou ainda trabalhar com chaves pública e privada. Essa mesma chave também é usada para assinar o token na criação.
+To validate the token and, consequently, the information, you can use a secret key or work with public and private keys. This same key is also used to sign the token during creation.
 
-O [JWT](https://jwt.io/) é amplamente utilizado como uma forma de autenticação em APIs, porém, se não tivermos o conhecimento necessário para implementar essa funcionalidade com boas práticas, o sistema de autenticação poderá apresentar falhas que comprometerão a segurança da aplicação como um todo.
+[JWT](https://jwt.io/) is widely used as an authentication mechanism in APIs. However, if we do not have the necessary knowledge to implement this functionality with good practices, the authentication system may present flaws that compromise the security of the application as a whole.
 
-## Instalação JWT
+## JWT installation
 
-[Instalação do JWT](https://jwt.io/libraries?language=Node.js).
+[JWT installation](https://jwt.io/libraries?language=Node.js).
 
 ```bash
 npm install jsonwebtoken
@@ -28,11 +28,11 @@ npm install jsonwebtoken
 npm install -D @types/jsonwebtoken
 ```
 
-Configurar as variaveis de ambiente para trabalhar com o JWT.
+Configure the environment variables to work with JWT.
 
-Arquivos `.env`, `.env.test` e `.env.example`:
+Files `.env`, `.env.test`, and `.env.example`:
 
 ```bash
 JWT_SECRET=my_secret
-JWT_EXPIRES_IN=86400    # 1 dia em segundos
+JWT_EXPIRES_IN=86400    # 1 day in seconds
 ```

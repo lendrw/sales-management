@@ -1,22 +1,22 @@
 ## Integration Tests
 
-Definição retirada do site [Wikipedia](https://pt.wikipedia.org/wiki/Teste_de_integra%C3%A7%C3%A3o).
+Definition taken from [Wikipedia](https://en.wikipedia.org/wiki/Integration_testing).
 
-**Teste de integração** é a fase do teste de software em que módulos são combinados e testados em grupo. Ela sucede o teste de unidade, em que os módulos são testados individualmente, e antecede o teste de sistema, em que o sistema completo (integrado) é testado num ambiente que simula o ambiente de produção.
+**Integration testing** is the software testing phase in which modules are combined and tested as a group. It comes after unit testing, where modules are tested individually, and before system testing, where the complete integrated system is tested in an environment that simulates production.
 
-Tarefas que precisamos executar:
+Tasks we need to execute:
 
-1. Criar o arquivo de configuração do Jest para testes de integracao especificamente.
-2. Customizar o script para rodar os testes de integracao.
-3. Criar um banco de dados específico para execucao dos testes. Faremos isso diretamente nos scripts do arquivo `package.json`.
-4. Criar a conexão do TypeORM específica para os testes.
+1. Create a Jest configuration file specifically for integration tests.
+2. Customize the script to run integration tests.
+3. Create a specific database for running the tests. We will do this directly in the `package.json` scripts.
+4. Create the TypeORM connection specifically for tests.
 
 
-### Executando cada etapa
+### Executing each step
 
-1. Arquivo de configuração.
+1. Configuration file.
 
-Arquivo `jest.int.config.ts`:
+File `jest.int.config.ts`:
 
 ```js
 import { pathsToModuleNameMapper } from 'ts-jest'
@@ -37,11 +37,11 @@ export default {
 }
 ```
 
-2. Criar o script para rodar os testes de integração.
+2. Create the script to run integration tests.
 
-> Esse script dos testes de integração precisará executar o comando `docker` para subir o banco de dados de testes.
+> This integration test script will need to execute the `docker` command to start the test database.
 
-Arquivo `package.json`:
+File `package.json`:
 
 ```json
 "scripts": {
@@ -51,10 +51,10 @@ Arquivo `package.json`:
 }
 ```
 
-3. Criar a conexão do TypeORM específica para os testes.
+3. Create the TypeORM connection specifically for tests.
 
 
-Arquivo `src/common/infrastrcture/typeorm/testing/data-source.ts`:
+File `src/common/infrastrcture/typeorm/testing/data-source.ts`:
 
 ```js
 import { DataSource } from 'typeorm'
@@ -75,9 +75,9 @@ export const testDataSource = new DataSource({
 })
 ```
 
-> IMPORTANTE: ajustar a porta de conexao com o banco de dados de testes para 5433, no arquivo `.env.test`.
+> IMPORTANT: adjust the connection port for the test database to 5433 in the `.env.test` file.
 
-Arquivo `.env.test`:
+File `.env.test`:
 
 ```shell
 PORT=3333
@@ -91,4 +91,3 @@ DB_NAME=postgres
 DB_USER=postgres
 DB_PASS=postgres
 ```
-

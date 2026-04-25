@@ -1,61 +1,60 @@
-## Upload de arquivos
+## File Upload
 
-Este documento conterá um resumo do que implementaremos na parte de upload de arquivos.
+This document contains a summary of what we will implement for file uploads.
 
-E quando trabalhamos com uma API Restful, geralmente transacionamos os dados entre front-end e back-end utilizando o formato `JSON`.
+When working with a RESTful API, we usually exchange data between the front end and back end using the `JSON` format.
 
-Porém, o formato de dados JSON não funciona pra upload de arquivos, é até possível enviar um arquivo dentro de um JSON, mas teríamos que converter o arquivo para o formato base64, o que não é recomendável porque o tamanho fica enorme.
+However, the JSON data format does not work well for file uploads. It is possible to send a file inside JSON, but we would need to convert the file to base64, which is not recommended because the payload becomes very large.
 
-A prática comum é criar uma rota separada para tratar as requisições que envolvem upload de arquivos, definindo o formato de dados para `multipart/form-data`.
+The common practice is to create a separate route to handle requests involving file uploads, using the `multipart/form-data` format.
 
-### Requisitos Funcionais
+### Functional Requirements
 
-Em nosso projeto implementaremos o recurso de upload de arquivos para cadastramento de imagem de avatar (perfil) dos usuários.
+In our project, we will implement the file upload feature to register users' avatar/profile images.
 
-O serviço de upload de arquivo deverá atender as regras de negócios listadas abaixo.
+The file upload service must meet the business rules listed below.
 
-**Requisitos Funcionais:**
+**Functional Requirements:**
 
-- O usuário deverá estar autenticado para atualizar a própria imagem de avatar.
-- Não permitir upload de arquivo com tamanho maior que 3MB.
-- Permitir upload de arquivo com tipo somente entre as seguintes opções: `image/jpeg`, `image/jpg`, `image/png`, `image/webp`.
+- The user must be authenticated to update their own avatar image.
+- Do not allow files larger than 3MB to be uploaded.
+- Allow only files with one of the following types: `image/jpeg`, `image/jpg`, `image/png`, `image/webp`.
 
 ### Multer
 
 [Multer](https://github.com/expressjs/multer/blob/master/doc/README-pt-br.md)
 
-Multer é um middleware Node.js para manipulação de dados no formato `multipart/form-data`, que é usado principalmente para upload de arquivos. Estaremos instalando e usando o Multer no projeto.
+Multer is a Node.js middleware for handling data in the `multipart/form-data` format, which is mainly used for file uploads. We will install and use Multer in the project.
 
 ### Cloudflare R2
 
 [Cloudflare R2](https://dash.cloudflare.com/sign-up/r2/)
 
-Existem vários sistemas específicos para upload de arquivos, e com certeza você já deve ter ouvido falar do `Amazon S3`, que é o mais famoso.
+There are several systems specifically designed for file uploads, and you have probably heard of `Amazon S3`, which is the most famous one.
 
-O Amazon S3 é uma aplicação de armazenamento da Amazon, muito antiga e muito robusta.
+Amazon S3 is an Amazon storage service that is very mature and robust.
 
-Mas aqui neste projeto não usaremos o Amazon S3, por dois motivos principais:
+However, in this project we will not use Amazon S3 for two main reasons:
 
-- O primeiro é porque você é obrigado a cadastrar um cartão de crédito ao criar sua conta na Amazon.
-- O segundo motivo é o custo.
+- The first is that you are required to register a credit card when creating your Amazon account.
+- The second reason is cost.
 
-Porque o Amazon S3, apesar de ser barato, não é o mais barato, cobra uma taxa de egresso de arquivos, ou seja, cada vez que você baixa um arquivo, você vai pagar essa taxa de egresso.
+Although Amazon S3 is inexpensive, it is not the cheapest. It charges file egress fees, which means that every time you download a file, you pay that egress fee.
 
-E isso pode ficar bem caro caso você tenha uma aplicação que faz upload de arquivos, por exemplo, vídeos, imagens, e os usuários da aplicação podem interagir com esses arquivos. Por isso usaremos o `Cloudflare R2`.
+This can become expensive if you have an application that uploads files such as videos or images and allows users to interact with those files. For that reason, we will use `Cloudflare R2`.
 
-O `Cloudflare R2` funciona da mesma maneira que o Amazon S3 para armazenamento de arquivos, só que ele não cobra taxa de egressos, ficando bem mais barato que o Amazon S3.
+`Cloudflare R2` works the same way as Amazon S3 for file storage, but it does not charge egress fees, making it much cheaper than Amazon S3.
 
-Outra vantagem é que o Cloudflare R2 permite o uso da API do Amazon S3, ou seja, se você em algum momento quiser migrar para o Amazon S3, a implementação será a mesma.
+Another advantage is that Cloudflare R2 supports the Amazon S3 API, so if you ever want to migrate to Amazon S3, the implementation will be the same.
 
-### Implementação do Uploader com o Multer e o SDK Client S3 da Amazon
+### Implementing the uploader with Multer and the Amazon S3 Client SDK
 
-[SDK do Client S3](https://docs.aws.amazon.com/pt_br/sdk-for-javascript/v3/developer-guide/getting-started-nodejs.html)
+[S3 Client SDK](https://docs.aws.amazon.com/pt_br/sdk-for-javascript/v3/developer-guide/getting-started-nodejs.html)
 
-Instalar o Multer e a SDK do Client S3 para criar a implementação do upload de imagens para avatar de usuários.
+Install Multer and the S3 Client SDK to create the implementation for uploading user avatar images.
 
 ```shell
 npm install multer @aws-sdk/client-s3
 
 npm install @types/multer -D
 ```
-

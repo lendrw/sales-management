@@ -1,28 +1,28 @@
-## Configurando o TypeORM
+## Configuring TypeORM
 
-O [TypeORM](https://typeorm.io/) é a ferramenta que utilizaremos para criação do mapeamento da estrutura do banco de dados da API com classes que descrevem as entidades.
+[TypeORM](https://typeorm.io/) is the tool we will use to create the mapping between the API database structure and classes that describe the entities.
 
-Uma ferramenta ORM nos permite relacionar registros das tabelas em banco de dados com uma instância de uma classe typescript, um objeto.
+An ORM tool allows us to relate records from database tables to an instance of a TypeScript class, an object.
 
-Na prática, criaremos Entidades com a representação dos dados de uma tabela e Repositórios para que possamos manipular os dados do banco de dados: inserir, alterar, remover, etc. Tudo isso através do TypeORM.
+In practice, we will create Entities that represent table data and Repositories so we can manipulate database data: insert, update, remove, etc. All of this will be done through TypeORM.
 
-A Entidade define a estrutura dos dados. Para realizar as operações de manipulação dos dados, usamos o padrão Repository, que o TypeORM já implementa os principais métodos, como por exemplo, `create`, `save`, `find`, `findOne`, `remove`, etc.
+The Entity defines the data structure. To perform data manipulation operations, we use the Repository pattern, for which TypeORM already implements the main methods, such as `create`, `save`, `find`, `findOne`, `remove`, etc.
 
-Outra vantagem em usar o TypeORM é a CLI que estará disponível para automatizar diversas tarefas como por exemplo, criação de migrações.
+Another advantage of using TypeORM is the CLI, which is available to automate several tasks, such as creating migrations.
 
-No nosso projeto utilizaremos o banco de dados Postgres rodando em container Docker.
+In our project, we will use a Postgres database running in a Docker container.
 
-Instalação do TypeORM e Postgres no projeto:
+Installing TypeORM and Postgres in the project:
 
 ```shell
 npm install typeorm pg
 ```
 
-O TypeORM disponibiliza uma ferramenta CLI que nos permite criar os arquivos de migrations para definição da estrutura do banco de dados, além de vários outros recursos.
+TypeORM provides a CLI tool that allows us to create migration files to define the database structure, along with several other features.
 
-Por padrão, a CLI do Typeorm trabalha apenas com arquivos Javascript. Como alternativa, podemos usar o pacote `ts-node-dev` em conjunto com o Typeorm para executar os arquivos Typescript diretamente, através do executável. Exemplo:
+By default, the TypeORM CLI works only with JavaScript files. As an alternative, we can use the `ts-node-dev` package together with TypeORM to run TypeScript files directly through the executable. Example:
 
-Vamos configurar um script no arquivo `package.json`, que será usado para rodar a CLI do TypeORM:
+We will configure a script in the `package.json` file that will be used to run the TypeORM CLI:
 
 ```json
 "scripts": {
@@ -30,7 +30,7 @@ Vamos configurar um script no arquivo `package.json`, que será usado para rodar
 }
 ```
 
-Para verificar o funcionamento desse script, execute:
+To verify that this script works, run:
 
 ```shell
 npm run typeorm

@@ -1,15 +1,14 @@
-## Perfil de usuário
+## User Profile
 
-Neste módulo implementaremos os recursos para gerenciamento de perfis de usuários, dando ao usuário a opção de poder atualizar os dados de seu próprio perfil na aplicação.
+In this module, we will implement user profile management features, giving users the option to update their own profile data in the application.
 
-### Requisitos
+### Requirements
 
-1. Basicamente, o usuário poderá alterar o seu nome, email e senha.
+1. Basically, the user will be able to change their name, email, and password.
 
-2. O usuário não poderá alterar o seu email para um email já em uso por outro usuário na aplicação.
+2. The user will not be able to change their email to an email already used by another user in the application.
 
-3. Para atualizar a sua senha, o usuário deverá informar a senha atual em uso.
+3. To update their password, the user must provide the current password in use.
 
-4. Para atualizar a sua senha, o usuário deverá confirmar essa nova senha.
-
+4. To update their password, the user must confirm the new password.
 

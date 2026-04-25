@@ -1,31 +1,31 @@
 ## Orders Module
 
-Nesta seção implementaremos os recursos referentes aos pedidos de compras.
+In this section, we will implement the features related to purchase orders.
 
-Através desse módulo poderemos explorar mais recursos do TypeORM, principalmente as funcionalidades de relacionamento muitos-para-muitos entre tabelas.
+Through this module, we will explore more TypeORM features, especially many-to-many relationship functionality between tables.
 
-### Requisitos para criação de Pedido de Compra
+### Requirements for creating a Purchase Order
 
-Validações que devem ser implementadas durante a criação de um pedido de compras na aplicação:
+Validations that must be implemented while creating a purchase order in the application:
 
-1. Não permitir a criação de um pedido de compras com um cliente que não existe na aplicação.
-2. Não permitir a criação de um pedido de compras com um produto que não existe na aplicação.
-3. Não permitir a criação de um pedido de compras com um produto que não possue quantidade em estoque suficiente.
-4. Ao criar um novo pedido, atualizar a quantidade em estoque de cada produto.
+1. Do not allow a purchase order to be created with a customer that does not exist in the application.
+2. Do not allow a purchase order to be created with a product that does not exist in the application.
+3. Do not allow a purchase order to be created with a product that does not have enough stock quantity.
+4. When creating a new order, update the stock quantity of each product.
 
-### Módulo de Pedidos de Compras
+### Purchase Orders Module
 
-Tabelas envolvidas nesse módulo:
+Tables involved in this module:
 
-**- `orders`** - tabela dos pedidos de compras.
+**- `orders`** - purchase orders table.
 
-**- `customers`** - tabela dos clientes.
+**- `customers`** - customers table.
 
-**- `products`** - tabela dos produtos.
+**- `products`** - products table.
 
-**- `orders_products`** - tabela **pivô** para armazenar os dados do relacionamento `ManyToMany` entre `products` e `orders`, onde vários produtos podem estar em vários pedidos de compras.
+**- `orders_products`** - **pivot** table used to store data for the `ManyToMany` relationship between `products` and `orders`, where several products can be included in several purchase orders.
 
-Para cadastrar um novo pedido de compras na tabela `orders`, os dados enviados no corpo da requisição devem ser: o `customer_id` e um array de `products` contendo o `id` e a `quantity` para cada produto. Exemplo:
+To create a new purchase order in the `orders` table, the data sent in the request body must include: the `customer_id` and a `products` array containing the `id` and `quantity` for each product. Example:
 
 ```json
 {
@@ -43,21 +43,21 @@ Para cadastrar um novo pedido de compras na tabela `orders`, os dados enviados n
 }
 ```
 
-### Tratamento dos dados da requisição (POST /orders)
+### Handling request data (POST /orders)
 
-Implementar um relacionamento `ManyToMany` entre produtos e pedidos, para permitir que um produto possa ser incluído em mais de um pedido, bem como permitir que um pedido contenha mais de um produto.
+Implement a `ManyToMany` relationship between products and orders, allowing a product to be included in more than one order and allowing an order to contain more than one product.
 
-Com isso, você deve sempre armazenar o valor do produto e a quantidade pedida no momento da compra, na tabela pivô `orders_products`.
+With this, you must always store the product price and requested quantity at the time of purchase in the `orders_products` pivot table.
 
-Essa tabela `orders_products` deve ter os campos: `id`, `order_id`, `product_id`, `quantity`, `price`, `created_at` e `updated_at`.
+This `orders_products` table must have the fields: `id`, `order_id`, `product_id`, `quantity`, `price`, `created_at`, and `updated_at`.
 
-Com os dados recebidos, devemos cadastrar na tabela `orders` um novo pedido, que estará relacionado ao cliente informado em `customer_id`, além dos campos `created_at` e `updated_at`. Os dados do array de produtos devem ser cadastrados na tabela `orders_products`, que são eles: o `product_id`, `order_id`, `price`, `quantity`, `created_at` e `updated_at`.
+With the received data, we must create a new order in the `orders` table, related to the customer provided in `customer_id`, along with the `created_at` and `updated_at` fields. The data from the products array must be inserted into the `orders_products` table: `product_id`, `order_id`, `price`, `quantity`, `created_at`, and `updated_at`.
 
-> Github do TypeORM: [Relacionamentos](https://github.com/typeorm/typeorm/blob/master/docs/relations.md)
+> TypeORM GitHub: [Relationships](https://github.com/typeorm/typeorm/blob/master/docs/relations.md)
 
-### Retornando os dados de um Pedido (GET /orders/:id)
+### Returning Order data (GET /orders/:id)
 
-Precisaremos retornar as informações de um pedido específico, com todas as informações que podem ser recuperadas através dos relacionamentos entre as tabelas `orders`, `customers` e `orders_products`. Exemplo:
+We will need to return the information for a specific order, including all data that can be retrieved through the relationships between the `orders`, `customers`, and `orders_products` tables. Example:
 
 ```json
 {
@@ -94,7 +94,7 @@ Precisaremos retornar as informações de um pedido específico, com todas as in
 }
 ```
 
-O TypeORM define um maneira prática de buscar os dados relacionados com o recurso que estamos buscando no banco de dados, através do uso da opção **relations** nos métodos de buscas. Você precisará informar o nome da tabela relacionada para trazer os dados. Exemplo:
+TypeORM provides a practical way to fetch data related to the resource we are querying in the database by using the **relations** option in find methods. You will need to provide the related table name to retrieve the data. Example:
 
 ```js
 userRepository.find({
@@ -108,4 +108,4 @@ userRepository.find({
 })
 ```
 
-> Github do TypeORM: [opções para buscar dados em banco de dados.](https://github.com/typeorm/typeorm/blob/master/docs/find-options.md).
+> TypeORM GitHub: [options for finding data in the database.](https://github.com/typeorm/typeorm/blob/master/docs/find-options.md).

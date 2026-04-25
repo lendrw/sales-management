@@ -1,50 +1,50 @@
-## O que são casos de uso - Use Cases?
+## What are Use Cases?
 
-Os casos de uso são os serviços da nossa aplicação responsáveis por operacionalizar as entidades e repositórios, para atender determinadas regras de negócios.
+Use cases are the services in our application responsible for operating entities and repositories in order to meet specific business rules.
 
-No livro "Arquitetura Limpa" o autor define que as entidades são as regras cruciais do negócio, mas existem outras regras a serem implementadas, que são as regras de aplicação.
+In the book "Clean Architecture", the author defines entities as the crucial business rules, but there are other rules to be implemented, which are application rules.
 
-As regras cruciais são aquelas mais puras, que não sofrem interferência de nada externo, como por exemplo bibliotecas ou frameworks.
+Crucial rules are the purest ones, which do not suffer interference from anything external, such as libraries or frameworks.
 
-Já as regras de aplicação normalmente farão uso de outras bibliotecas para que se tenha a funcionalidade esperada, como por exemplo, para "salvar um produto" usaremos um ORM para armazenar os dados em banco de dados.
+Application rules, on the other hand, will usually use other libraries to provide the expected functionality. For example, to "save a product", we will use an ORM to store the data in the database.
 
-Os casos de uso serão responsáveis por resolver essas regras de aplicação.
+Use cases will be responsible for resolving these application rules.
 
-Através dos casos de uso podemos ver o motivo da existência do software, eles expõem cada necessidade a ser atendida e podem ser vistos como um manual de uso do software.
+Through use cases, we can see the reason the software exists. They expose each need to be met and can be seen as a usage manual for the software.
 
-Todos os recursos externos (HTTP, mensageria, email, banco de dados, etc) se relacionam com a nossa aplicação através dos casos de uso.
+All external resources (HTTP, messaging, email, database, etc.) interact with our application through use cases.
 
-A ideia é criarmos os casos de uso na camada `application` exatamente por ser a estrutura responsável por tratar as regras de aplicação.
+The idea is to create use cases in the `application` layer precisely because this structure is responsible for handling application rules.
 
-> Alguns desenvolvedores preferem criar os casos de uso na camada de dominio.
+> Some developers prefer to create use cases in the domain layer.
 
 
-## Configurando os serviços de produtos
+## Configuring product services
 
-Criaremos cada caso de uso seguindo o princípio de `Single Responsability` do SOLID, que implica em criação de classes com apenas uma responsabilidade.
+We will create each use case following SOLID's `Single Responsibility` principle, which means creating classes with only one responsibility.
 
-Outro ponto importante para a implementação de um caso de uso é a definição de quais dados devem ser recebidos para que o processamento aconteça. A mesma coisa devemos considerar no retorno da informação que foi criada. Devemos converter a entidade criada em uma estrutura específica, para que seja enviada como dados de retorno.
+Another important point when implementing a use case is defining which data must be received for processing to happen. We must consider the same thing for returning the created information. We should convert the created entity into a specific structure to be sent as response data.
 
-### Implementação dos casos de usos para produtos
+### Implementing use cases for products
 
-*Requisitos que precisam ser atendidos:*
+*Requirements that must be met:*
 
-- O nome do produto é obrigatório.
-- O preço do produto é obrigatório.
-- A quantidade do produto é obrigatória.
-- Não pode cadastrar um produto com nome igual ao de outro produto.
+- The product name is required.
+- The product price is required.
+- The product quantity is required.
+- A product cannot be created with the same name as another product.
 
-E para persistir os dados precisaremos de um repositório. Como devemos considerar qualquer tipo de estrutura de dados sendo usada para essa operação (memoria, mysql, mongodb, etc), usaremos o método construtor para injetar o repositório como uma dependencia da nossa classe do caso de uso.
+To persist the data, we will need a repository. Since we must consider any type of data structure being used for this operation (memory, MySQL, MongoDB, etc.), we will use the constructor method to inject the repository as a dependency of our use case class.
 
-## Configurando os serviços de usuários
+## Configuring user services
 
-### Implementação dos casos de usos para usuários
+### Implementing use cases for users
 
-*Requisitos que precisam ser atendidos:*
+*Requirements that must be met:*
 
-- O nome é obrigatório.
-- O email é obrigatório.
-- Não pode cadastrar um usuario com email igual ao de outro usuario.
-- A senha é obrigatória.
-- A senha deve ser armazenada com criptografia.
-- O campo avatar é opcional e será preenchido através de uma rota específica de atualização.
+- The name is required.
+- The email is required.
+- A user cannot be created with the same email as another user.
+- The password is required.
+- The password must be stored encrypted.
+- The avatar field is optional and will be filled through a specific update route.

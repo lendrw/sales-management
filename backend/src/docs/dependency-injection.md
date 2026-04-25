@@ -1,67 +1,67 @@
-## Injeção de Dependências
+## Dependency Injection
 
-Agora que já temos a primeira funcionalidade disponível na API, vamos refatorar esse processo de criação de produtos fazendo uso da biblioteca [tsyringe](https://github.com/microsoft/tsyringe).
+Now that we already have the first functionality available in the API, we will refactor the product creation process using the [tsyringe](https://github.com/microsoft/tsyringe) library.
 
-`tsyringe` é uma biblioteca de injeção de dependência projetada para ser fácil de usar e integrar em projetos TypeScript, proporcionando uma maneira eficaz de gerenciar dependências e facilitar o desenvolvimento de aplicativos modulares.
+`tsyringe` is a dependency injection library designed to be easy to use and integrate into TypeScript projects, providing an effective way to manage dependencies and make modular application development easier.
 
-Principais recursos:
+Main features:
 
-- `Injeção de Dependência`: Permite a injeção de dependências em classes sem a necessidade de instanciar manualmente as dependências.
-- `Decorators`: Usa decorators como `@injectable`, `@inject` e `@singleton` para marcar classes e gerenciar dependências.
-- `Container de Dependência`: Fornece um container que gerencia as instâncias das dependências.
-- `Resolução Automática`: Resolve automaticamente as dependências sem a necessidade de configuração explícita.
+- `Dependency Injection`: Allows dependencies to be injected into classes without manually instantiating them.
+- `Decorators`: Uses decorators such as `@injectable`, `@inject`, and `@singleton` to mark classes and manage dependencies.
+- `Dependency Container`: Provides a container that manages dependency instances.
+- `Automatic Resolution`: Automatically resolves dependencies without requiring explicit configuration.
 
 
-Instalar a biblioteca:
+Install the library:
 
 ```shell
 npm install tsyringe
 ```
 
-Existem algumas formas de registrar uma classe no container.
+There are a few ways to register a class in the container.
 
 
 ### registerSingleton
 
-`Uso`: Registra uma única instância de uma classe para ser usada em todo o aplicativo.
+`Usage`: Registers a single instance of a class to be used throughout the application.
 
-`Comportamento`: A primeira vez que a dependência é resolvida, uma nova instância é criada e, em seguida, essa mesma instância é reutilizada para todas as resoluções subsequentes.
+`Behavior`: The first time the dependency is resolved, a new instance is created, and then that same instance is reused for all subsequent resolutions.
 
-`Ideal Para`: Serviços ou componentes que devem ter uma única instância compartilhada em todo o aplicativo, como serviços de configuração ou gerenciadores de estado.
+`Best for`: Services or components that should have a single shared instance throughout the application, such as configuration services or state managers.
 
 
 ### registerInstance
 
-`Uso`: Registra uma instância específica de uma classe ou objeto para ser usada como dependência.
+`Usage`: Registers a specific instance of a class or object to be used as a dependency.
 
-`Comportamento`: A instância registrada é usada sempre que a dependência é resolvida.
+`Behavior`: The registered instance is used whenever the dependency is resolved.
 
-`Ideal Para`: Quando você já tem uma instância existente de um serviço ou objeto e deseja registrá-la diretamente no container.
+`Best for`: When you already have an existing instance of a service or object and want to register it directly in the container.
 
 
 ### register
 
-`Uso`: Permite registrar uma dependência com uma configuração personalizada.
+`Usage`: Allows registering a dependency with a custom configuration.
 
-`Comportamento`: Pode ser configurado para registrar uma instância, uma fábrica de instâncias ou uma classe, e pode especificar se a instância deve ser singleton ou não. O comportamento padrão não garante uma instância única (não é singleton).
+`Behavior`: Can be configured to register an instance, an instance factory, or a class, and can specify whether the instance should be a singleton. The default behavior does not guarantee a single instance (it is not a singleton).
 
-`Ideal Para`: Situações em que você precisa de mais controle sobre como a dependência é resolvida.
+`Best for`: Situations where you need more control over how the dependency is resolved.
 
 
-### O método container.resolve()
+### The container.resolve() method
 
-O método `container.resolve()` é essencial para utilizar a injeção de dependência com `tsyringe`, permitindo que você obtenha do container as instâncias das classes registradas de forma fácil e eficiente, mantendo seu código modular e desacoplado.
+The `container.resolve()` method is essential for using dependency injection with `tsyringe`, allowing you to easily and efficiently get registered class instances from the container while keeping your code modular and decoupled.
 
 
 ### Decorator @injectable()
 
-`Propósito`: Marca uma classe como disponível para a injeção de dependências.
+`Purpose`: Marks a class as available for dependency injection.
 
-`Uso`: Deve ser usado em qualquer classe que você deseja que seja injetável pelo container de injeção de dependências.
+`Usage`: Should be used on any class that you want to make injectable by the dependency injection container.
 
 
 ### @inject()
 
-`Propósito`: Especifica que uma dependência deve ser injetada em um parâmetro de construtor ou propriedade.
+`Purpose`: Specifies that a dependency should be injected into a constructor parameter or property.
 
-`Uso`: Deve ser usado quando você deseja injetar uma dependência específica em um parâmetro de construtor ou propriedade de uma classe.
+`Usage`: Should be used when you want to inject a specific dependency into a constructor parameter or property of a class.

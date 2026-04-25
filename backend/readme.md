@@ -1,14 +1,14 @@
-### Instalando o projeto
+### Installing the project
 
-Instale o projeto em seu ambiente de desenvolvimento seguindo as etapas a seguir.
+Install the project in your development environment by following the steps below.
 
-1. No Shell, clonar o repositório do projeto em seu PC.
+1. In the shell, clone the project repository to your computer.
 
 ```shell
 git clone https://github.com/lendrw/API-vendas.git
 ```
 
-2. No Shell, acessar a pasta do projeto e instalar as dependências com o `Npm`.
+2. In the shell, access the project folder and install the dependencies with `npm`.
 
 ```shell
 cd
@@ -16,9 +16,9 @@ cd
 npm ci
 ```
 
-3. No Shell, executar o comando `code .` para abrir o Visual Studio Code com o projeto carregado.
+3. In the shell, run the `code .` command to open Visual Studio Code with the project loaded.
 
-4. Criar o arquivo de variaveis de ambiente `.env` na pasta raiz do projeto, incluindo o conteúdo a seguir:
+4. Create the `.env` environment variables file in the project root folder, including the content below:
 
 ```shell
 # Application
@@ -26,9 +26,9 @@ PORT=3333
 API_URL=http://localhost:3333
 ```
 
-### Executando o projeto
+### Running the project
 
-O projeto inicial contém apenas o arquivo `server.ts` com o um `console.log`. Executar o servidor e observar a mensagem `Olá Dev!` no console do shell:
+The initial project contains only the `server.ts` file with a `console.log`. Run the server and check the greeting message in the shell console:
 
 ```shell
 npm run dev
