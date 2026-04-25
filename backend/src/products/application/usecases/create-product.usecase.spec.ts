@@ -8,6 +8,11 @@ import { BadRequestError } from "@/common/domain/errors/bad-request-error";
 describe("CreateProductUseCase Unit Tests", () => {
   let sut: CreateProductUseCase.UseCase;
   let repository: ProductsRepository;
+  const validInput = {
+    name: "Product 1",
+    price: 10,
+    quantity: 5,
+  };
 
   beforeEach(() => {
     repository = new ProductsInMemoryRepository();
@@ -16,52 +21,29 @@ describe("CreateProductUseCase Unit Tests", () => {
 
   it("should create a product", async () => {
     const spyInsert = jest.spyOn(repository, "insert");
-    const props = {
-      name: "Product 1",
-      price: 10,
-      quantity: 5,
-    };
 
-    const result = await sut.execute(props);
+    const result = await sut.execute(validInput);
+
     expect(result.id).toBeDefined();
     expect(result.created_at).toBeDefined();
     expect(spyInsert).toHaveBeenCalledTimes(1);
   });
 
   it("should not be possible to register a product with the name of another product", async () => {
-    const props = {
-      name: "Product 1",
-      price: 10,
-      quantity: 5,
-    };
-    await sut.execute(props);
-    await expect(sut.execute(props)).rejects.toBeInstanceOf(ConflictError);
+    await sut.execute(validInput);
+
+    await expect(sut.execute(validInput)).rejects.toBeInstanceOf(
+      ConflictError,
+    );
   });
 
-  it("should throws error when name not provided", async () => {
-    const props = {
-      name: null,
-      price: 10,
-      quantity: 5,
-    };
-    await expect(sut.execute(props)).rejects.toBeInstanceOf(BadRequestError);
-  });
-
-  it("should throws error when price not provided", async () => {
-    const props = {
-      name: "Product 1",
-      price: 0,
-      quantity: 5,
-    };
-    await expect(sut.execute(props)).rejects.toBeInstanceOf(BadRequestError);
-  });
-
-  it("should throws error when quantity not provided", async () => {
-    const props = {
-      name: "Product 1",
-      price: 10,
-      quantity: 0,
-    };
-    await expect(sut.execute(props)).rejects.toBeInstanceOf(BadRequestError);
+  test.each([
+    ["name", { name: null }],
+    ["price", { price: 0 }],
+    ["quantity", { quantity: 0 }],
+  ])("should throws error when %s not provided", async (_field, input) => {
+    await expect(
+      sut.execute({ ...validInput, ...input }),
+    ).rejects.toBeInstanceOf(BadRequestError);
   });
 });
